@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameOfTournaments.Data", "G
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameOfTournaments.Web", "GameOfTournaments.Web\GameOfTournaments.Web.csproj", "{2C25E0E1-141F-4927-A36D-40035E7E2342}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameOfTournaments.Services", "GameOfTournaments.Services\GameOfTournaments.Services.csproj", "{1A1324E0-50AF-4285-8911-5C65972AAC00}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{2C25E0E1-141F-4927-A36D-40035E7E2342}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C25E0E1-141F-4927-A36D-40035E7E2342}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C25E0E1-141F-4927-A36D-40035E7E2342}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A1324E0-50AF-4285-8911-5C65972AAC00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A1324E0-50AF-4285-8911-5C65972AAC00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A1324E0-50AF-4285-8911-5C65972AAC00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A1324E0-50AF-4285-8911-5C65972AAC00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

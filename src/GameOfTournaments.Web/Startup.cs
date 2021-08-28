@@ -19,10 +19,12 @@ namespace GameOfTournaments.Web
         public void ConfigureServices(IServiceCollection services)
         {
             var applicationSettings = services.GetApplicationSettings(this.Configuration);
-            services.AddControllers();
             
+            services.AddControllers();
+            services.AddIdentity();
             services.AddJwtAuthentication(applicationSettings);
             services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(applicationSettings.ConnectionString));
+            services.AddApplicationServices();
             
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "GameOfTournaments.Web", Version = "v1" }); });
         }
@@ -41,6 +43,7 @@ namespace GameOfTournaments.Web
             app.UseRouting();
 
             app.UseAuthorization();
+            app.ApplyMigrations();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
