@@ -352,3 +352,7 @@ MigrationBackup/
 .idea/.idea.GameOfTournaments/.idea/
 
 src/.idea/.idea.GameOfTournaments/.idea/
+
+src/GameOfTournaments.Web/appsettings.Development.json
+
+src/GameOfTournaments.Web/appsettings.json

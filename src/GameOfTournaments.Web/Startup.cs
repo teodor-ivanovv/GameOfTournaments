@@ -1,7 +1,9 @@
 namespace GameOfTournaments.Web
 {
+    using GameOfTournaments.Data;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -16,8 +18,12 @@ namespace GameOfTournaments.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var applicationSettings = services.GetApplicationSettings(this.Configuration);
             services.AddControllers();
-            services.AddJwtAuthentication(services.GetApplicationSettings(this.Configuration));
+            
+            services.AddJwtAuthentication(applicationSettings);
+            services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(applicationSettings.ConnectionString));
+            
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "GameOfTournaments.Web", Version = "v1" }); });
         }
 
