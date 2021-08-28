@@ -15,11 +15,11 @@
 
         public int Code { get; private set; }
 
-        public T Object { get; private set; }
+        public T Object { get; set; }
 
         public IEnumerable<string> Errors => this.errors;
 
-        public IOperationResult<T> AddError(string errorMessage)
+        public IOperationResult<T> AddErrorMessage(string errorMessage)
         {
             Guard.Against.NullOrWhiteSpace(errorMessage, nameof(errorMessage));
             this.Success = false;
@@ -35,7 +35,7 @@
             Guard.Against.NullOrWhiteSpace(parameter, nameof(parameter));
 
             if (obj == null)
-                this.AddError($"{nameof(this.ValidateNotNull)} - {className}.{method} - {parameter}.");
+                this.AddErrorMessage($"{nameof(this.ValidateNotNull)} - {className}.{method} - {parameter}.");
 
             return this;
         }
@@ -47,7 +47,7 @@
             Guard.Against.NullOrWhiteSpace(parameter, nameof(parameter));
 
             if (string.IsNullOrWhiteSpace(obj))
-                this.AddError($"{nameof(this.ValidateNotWhiteSpace)} - {className}.{method} - {parameter}.");
+                this.AddErrorMessage($"{nameof(this.ValidateNotWhiteSpace)} - {className}.{method} - {parameter}.");
 
             return this;
         }

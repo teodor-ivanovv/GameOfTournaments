@@ -16,7 +16,7 @@
         
         IEnumerable<string> Errors { get; }
 
-        IOperationResult<T> AddError(string errorMessage);
+        IOperationResult<T> AddErrorMessage(string errorMessage);
 
         IOperationResult<T> ValidateNotNull(object obj, string className, string method, string parameter);
         
