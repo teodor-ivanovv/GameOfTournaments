@@ -9,8 +9,8 @@
     {
         public static void ApplyMigrations(this IApplicationBuilder app)
         {
-            using var services = app.ApplicationServices.CreateScope();
-            var dbContext = services.ServiceProvider.GetService<ApplicationDbContext>();
+            using var scope = app.ApplicationServices.CreateScope();
+            var dbContext = scope.ServiceProvider.GetService<ApplicationDbContext>();
             dbContext?.Database.Migrate();
         }
     }
