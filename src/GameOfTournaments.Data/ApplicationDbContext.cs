@@ -12,5 +12,7 @@
         }
         
         public DbSet<Log> Logs { get; set; }
+        
+        public DbSet<AuditLog> AuditLogs { get; set; }
     }
 }
