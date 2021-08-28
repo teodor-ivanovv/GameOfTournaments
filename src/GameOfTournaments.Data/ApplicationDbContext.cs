@@ -10,19 +10,19 @@
             : base(options)
         {
         }
-        
+
         public DbSet<AuditLog> AuditLogs { get; set; }
-        
+
         public DbSet<Log> Logs { get; set; }
-        
+
         public DbSet<Game> Games { get; set; }
-        
+
         public DbSet<Tag> Tags { get; set; }
 
         public DbSet<Bet> Bets { get; set; }
 
         public DbSet<News> News { get; set; }
-        
+
         public DbSet<Tournament> Tournaments { get; set; }
     }
 }
