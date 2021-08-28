@@ -2,8 +2,8 @@
 {
     using GameOfTournaments.Data.Infrastructure;
 
-    public class Log : LogBase
+    public class AuditLog : LogBase
     {
-        public LogSeverity Severity { get; set; }
+        public string Action { get; set; }
     }
 }

@@ -8,6 +8,7 @@
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
             => services
                 .AddScoped<IJwtService, JwtService>()
-                .AddScoped<ILogger, Logger>();
+                .AddScoped<ILogger, Logger>()
+                .AddScoped<IAuditLogger, AuditLogger>();
     }
 }
