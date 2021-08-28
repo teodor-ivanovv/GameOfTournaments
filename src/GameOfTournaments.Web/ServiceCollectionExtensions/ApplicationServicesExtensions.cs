@@ -9,6 +9,11 @@
             => services
                 .AddScoped<IJwtService, JwtService>()
                 .AddScoped<ILogger, Logger>()
-                .AddScoped<IAuditLogger, AuditLogger>();
+                .AddScoped<IAuditLogger, AuditLogger>()
+                .AddScoped<IGameService, GameService>()
+                .AddScoped<ITournamentService, TournamentService>()
+                .AddScoped<ITagService, TagService>()
+                .AddScoped<IBetService, BetService>()
+                .AddScoped<INewsService, NewsService>();
     }
 }
