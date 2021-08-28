@@ -350,3 +350,5 @@ MigrationBackup/
 .ionide/
 
 .idea/.idea.GameOfTournaments/.idea/
+
+src/.idea/.idea.GameOfTournaments/.idea/
