@@ -38,7 +38,6 @@
                 return this.BadRequest(operationResult);
             
             var result = await this.userManager.CreateAsync(user, registerUserModel.Password);
-
             if (!result.Succeeded)
             {
                 result.Errors.Select(e => operationResult.AddError($"{e.Code} - {e.Description}"));

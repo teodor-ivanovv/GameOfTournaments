@@ -2,14 +2,13 @@
 {
     using GameOfTournaments.Data;
     using GameOfTournaments.Data.Models;
-    using Microsoft.AspNetCore.Identity;
     using Microsoft.Extensions.DependencyInjection;
 
     public static class IdentityExtensions
     {
         public static IServiceCollection AddIdentity(this IServiceCollection services)
         {
-            services.AddIdentity<ApplicationUser, IdentityRole>(
+            services.AddIdentity<ApplicationUser, ApplicationRole>(
                     options =>
                     {
                         options.Password.RequiredLength = 6;
