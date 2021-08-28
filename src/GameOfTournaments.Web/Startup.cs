@@ -1,8 +1,11 @@
 namespace GameOfTournaments.Web
 {
     using GameOfTournaments.Data;
+    using GameOfTournaments.Data.Models;
+    using GameOfTournaments.Seeder;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -22,16 +25,23 @@ namespace GameOfTournaments.Web
             
             services.AddControllers();
 
-            services.AddIdentity()
+            services
+                .AddIdentity()
                 .RegisterDbContextFactory(applicationSettings)
                 .AddJwtAuthentication(applicationSettings)
-                .AddApplicationServices();
+                .AddApplicationServices()
+                .RegisterSeeders();
             
             services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(applicationSettings.ConnectionString));
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "GameOfTournaments.Web", Version = "v1" }); });
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(
+            IApplicationBuilder app, 
+            IWebHostEnvironment env,
+            ISeedManager seedManager,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<ApplicationRole> roleManager)
         {
             if (env.IsDevelopment())
             {
@@ -45,6 +55,7 @@ namespace GameOfTournaments.Web
             app.UseAuthentication();
             app.UseAuthorization();
             app.ApplyMigrations();
+            app.SeedDefaultData(seedManager, userManager, roleManager);
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }
