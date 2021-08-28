@@ -10,5 +10,7 @@
             : base(options)
         {
         }
+        
+        public DbSet<Log> Logs { get; set; }
     }
 }

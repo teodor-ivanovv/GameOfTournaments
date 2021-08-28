@@ -6,6 +6,8 @@
     public static class ApplicationServicesExtensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
-            => services.AddScoped<IJwtService, JwtService>();
+            => services
+                .AddScoped<IJwtService, JwtService>()
+                .AddScoped<ILogger, Logger>();
     }
 }
