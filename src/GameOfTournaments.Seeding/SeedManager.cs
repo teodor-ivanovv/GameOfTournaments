@@ -13,7 +13,10 @@
             Guard.Against.Null(enumerated, nameof(seeders));
 
             foreach (var seeder in enumerated)
-                await seeder.SeedAsync();
+            {
+                if (!await seeder.AlreadySeededAsync())
+                    await seeder.SeedAsync();
+            }
         }
     }
 }
