@@ -10,6 +10,7 @@
     using GameOfTournaments.Web.Factories;
     using GameOfTournaments.Web.Models;
     using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Options;
@@ -17,12 +18,16 @@
     public class UsersController : Controller
     {
         private readonly UserManager<ApplicationUser> userManager;
-
         private readonly IJwtService jwtService;
-
         private readonly IOptions<ApplicationSettings> options;
 
-        public UsersController(UserManager<ApplicationUser> userManager, IJwtService jwtService, IOptions<ApplicationSettings> options)
+        public UsersController(
+            IHttpContextAccessor httpContextAccessor, 
+            IAuthenticationService authenticationService,
+            UserManager<ApplicationUser> userManager, 
+            IJwtService jwtService, 
+            IOptions<ApplicationSettings> options)
+            : base(httpContextAccessor, authenticationService)
         {
             this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             this.jwtService = jwtService ?? throw new ArgumentNullException(nameof(jwtService));
@@ -32,6 +37,7 @@
         }
         
         // TODO: Add audit logging.
+        // TODO: Move user manager related logic to authentication service.
 
         [HttpPost]
         [AllowAnonymous]
