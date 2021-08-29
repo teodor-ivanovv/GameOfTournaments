@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class LogBase : IIdentifiable<int>
+    public abstract class LogBase : IIdentifiable<int>
     {
         public int Id { get; set; }
 
