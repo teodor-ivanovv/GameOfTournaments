@@ -2,6 +2,6 @@
 {
     public class Actions
     {
-        public const string CreateGame = "CreateGame";
+        public const string GameCreatorRoleName = "Game creator";
     }
 }

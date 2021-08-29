@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameOfTournaments.Web", "Ga
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameOfTournaments.Services", "GameOfTournaments.Services\GameOfTournaments.Services.csproj", "{1A1324E0-50AF-4285-8911-5C65972AAC00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameOfTournaments.Seeder", "GameOfTournaments.Seeder\GameOfTournaments.Seeder.csproj", "{8B7DFD47-66EA-4CD1-88D6-CF8F8C69A14F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameOfTournaments.Seeding", "GameOfTournaments.Seeding\GameOfTournaments.Seeding.csproj", "{8B7DFD47-66EA-4CD1-88D6-CF8F8C69A14F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameOfTournaments.Shared", "GameOfTournaments.Shared\GameOfTournaments.Shared.csproj", "{F870C26B-A2B9-4D42-9184-90DF0EBFEA74}"
 EndProject

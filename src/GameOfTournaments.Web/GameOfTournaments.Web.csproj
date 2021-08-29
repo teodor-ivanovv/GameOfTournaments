@@ -15,7 +15,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\GameOfTournaments.Data\GameOfTournaments.Data.csproj" />
-      <ProjectReference Include="..\GameOfTournaments.Seeder\GameOfTournaments.Seeder.csproj" />
+      <ProjectReference Include="..\GameOfTournaments.Seeding\GameOfTournaments.Seeding.csproj" />
       <ProjectReference Include="..\GameOfTournaments.Services\GameOfTournaments.Services.csproj" />
     </ItemGroup>
 
