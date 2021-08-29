@@ -7,13 +7,13 @@
     public static class ApplicationSettingsExtensions
     {
         public static ApplicationSettings GetApplicationSettings(
-            this IServiceCollection services,
+            this IServiceCollection serviceCollection,
             IConfiguration configuration)
         {
             Guard.Against.Null(configuration, nameof(configuration));
             
             var applicationSettingsConfiguration = configuration.GetSection("ApplicationSettings");
-            services.Configure<ApplicationSettings>(applicationSettingsConfiguration);
+            serviceCollection.Configure<ApplicationSettings>(applicationSettingsConfiguration);
             
             return applicationSettingsConfiguration.Get<ApplicationSettings>();
         }

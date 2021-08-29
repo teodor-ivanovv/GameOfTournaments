@@ -7,11 +7,13 @@
 
     public static class MigrationsExtensions
     {
-        public static void ApplyMigrations(this IApplicationBuilder app)
+        public static IApplicationBuilder ApplyMigrations(this IApplicationBuilder applicationBuilder)
         {
-            using var scope = app.ApplicationServices.CreateScope();
+            using var scope = applicationBuilder.ApplicationServices.CreateScope();
             var dbContext = scope.ServiceProvider.GetService<ApplicationDbContext>();
             dbContext?.Database.Migrate();
+
+            return applicationBuilder;
         }
     }
 }

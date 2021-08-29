@@ -5,8 +5,8 @@
 
     public static class ApplicationServicesExtensions
     {
-        public static IServiceCollection AddApplicationServices(this IServiceCollection services)
-            => services
+        public static IServiceCollection AddApplicationServices(this IServiceCollection serviceCollection)
+            => serviceCollection
                 .AddScoped<IJwtService, JwtService>()
                 .AddScoped<ILogger, Logger>()
                 .AddScoped<IAuditLogger, AuditLogger>()

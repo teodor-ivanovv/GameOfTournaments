@@ -2,13 +2,15 @@
 {
     using GameOfTournaments.Data;
     using GameOfTournaments.Data.Models;
+    using GameOfTournaments.Services;
     using Microsoft.Extensions.DependencyInjection;
 
     public static class IdentityExtensions
     {
-        public static IServiceCollection AddIdentity(this IServiceCollection services)
+        public static IServiceCollection AddIdentity(this IServiceCollection serviceCollection)
         {
-            services.AddIdentity<ApplicationUser, ApplicationRole>(
+            serviceCollection.AddScoped<IAuthenticationService, AuthenticationService>();
+            serviceCollection.AddIdentity<ApplicationUser, ApplicationRole>(
                     options =>
                     {
                         options.Password.RequiredLength = 6;
@@ -19,7 +21,7 @@
                     })
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            return services;
+            return serviceCollection;
         }
     }
 }
