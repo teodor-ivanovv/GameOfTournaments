@@ -1,6 +1,5 @@
 ﻿namespace GameOfTournaments.Services
 {
-    using System.Threading.Tasks;
     using GameOfTournaments.Services.Infrastructure;
 
     public interface IAuthenticationService
@@ -11,6 +10,6 @@
 
         void Set(IAuthenticationContext context);
 
-        Task<bool> IsInRoleAsync(string role);
+        bool IsInRole(string role);
     }
 }
