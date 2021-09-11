@@ -1,12 +1,14 @@
 ﻿namespace GameOfTournaments.Web.Controllers
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Ardalis.GuardClauses;
     using GameOfTournaments.Data.Infrastructure;
     using GameOfTournaments.Data.Models;
     using GameOfTournaments.Services;
+    using GameOfTournaments.Web.Cache.ApplicationUsers;
     using GameOfTournaments.Web.Factories;
     using GameOfTournaments.Web.Models;
     using Microsoft.AspNetCore.Authorization;
@@ -19,18 +21,21 @@
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IJwtService jwtService;
+        private readonly IApplicationUserCache applicationUserCache;
         private readonly IOptions<ApplicationSettings> options;
 
         public UsersController(
             IHttpContextAccessor httpContextAccessor, 
             IAuthenticationService authenticationService,
             UserManager<ApplicationUser> userManager, 
-            IJwtService jwtService, 
+            IJwtService jwtService,
+            IApplicationUserCache applicationUserCache,
             IOptions<ApplicationSettings> options)
-            : base(httpContextAccessor, authenticationService)
+            : base(httpContextAccessor, authenticationService, applicationUserCache)
         {
             this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             this.jwtService = jwtService ?? throw new ArgumentNullException(nameof(jwtService));
+            this.applicationUserCache = applicationUserCache ?? throw new ArgumentNullException(nameof(applicationUserCache));
             this.options = options ?? throw new ArgumentNullException(nameof(options));
 
             Guard.Against.Null(this.options.Value, nameof(this.options.Value));
@@ -94,7 +99,35 @@
             var token = this.jwtService.GenerateToken(user.Id.ToString(), user.UserName, this.options.Value.JwtSecret);
             operationResult.Object = new LoginUserResponseModel { Token = token };
 
+            var roles = await this.userManager.GetRolesAsync(user);
+            this.CacheApplicationUser(user, roles?.ToList());
+
             return this.Ok(operationResult);
+        }
+
+        private void CacheApplicationUser(ApplicationUser user, List<string> roles)
+        {
+            var applicationUserCacheModel = new ApplicationUserCacheModel
+            {
+                Id = user.Id,
+                Roles = roles,
+            };
+            
+            this.applicationUserCache.Cache(applicationUserCacheModel);
+        }
+
+        // CR: Remove this test method and implement integration tests
+        [HttpGet]
+        [AllowAnonymous]
+        [Route(nameof(GetFromCache))]
+        public ActionResult GetFromCache(int id)
+        {
+            var cached = this.applicationUserCache.Get(id);
+            
+            if (cached == null)
+                return this.BadRequest();
+
+            return this.Ok(cached);
         }
     }
 }

@@ -6,6 +6,7 @@
     using GameOfTournaments.Data.Models;
     using GameOfTournaments.Services;
     using GameOfTournaments.Services.Infrastructure;
+    using GameOfTournaments.Web.Cache.ApplicationUsers;
     using GameOfTournaments.Web.Factories;
     using GameOfTournaments.Web.Models;
     using Microsoft.AspNetCore.Http;
@@ -18,8 +19,9 @@
         public GamesController(
             IHttpContextAccessor httpContextAccessor, 
             IAuthenticationService authenticationService,
-            IGameService gameService)
-            : base(httpContextAccessor, authenticationService)
+            IGameService gameService,
+            IApplicationUserCache applicationUserCache)
+            : base(httpContextAccessor, authenticationService, applicationUserCache)
         {
             this.gameService = gameService ?? throw new ArgumentNullException(nameof(gameService));
         }
@@ -27,7 +29,9 @@
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GameViewModel>>> Games()
         {
-            // TODO: Validate user in base controller
+            if (!this.AuthenticationService.Authenticated)
+                return this.Unauthorized();
+            
             var games = await this.gameService.GetAsync(
                 new GetOptions<Game, string, GameViewModel>
                 {
@@ -37,15 +41,5 @@
 
             return this.Ok(games);
         }
-        
-        /*
-         * var operationResult = new OperationResult();
-            var gameCreator = await this.AuthenticationService.IsInRoleAsync(CreateGame);
-            if (!gameCreator)
-            {
-                operationResult.AddErrorMessage("Current user is not in role to create games.");
-                return this.BadRequest(operationResult);
-            }
-         */
     }
 }
