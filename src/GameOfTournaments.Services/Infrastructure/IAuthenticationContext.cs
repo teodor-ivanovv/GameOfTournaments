@@ -1,7 +1,7 @@
 ﻿namespace GameOfTournaments.Services.Infrastructure
 {
+    using System.Collections.Generic;
     using System.Security.Claims;
-    using GameOfTournaments.Data.Models;
 
     public interface IAuthenticationContext
     {
@@ -9,7 +9,11 @@
         
         string IpAddress { get; }
         
+        bool Authenticated { get; set; }
+        
         ClaimsPrincipal ApplicationUser { get; set; }
+        
+        List<string> Roles { get; }
 
         // Logins, time
     }
