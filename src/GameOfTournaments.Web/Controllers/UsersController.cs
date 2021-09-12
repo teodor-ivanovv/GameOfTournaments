@@ -8,6 +8,7 @@
     using GameOfTournaments.Data.Infrastructure;
     using GameOfTournaments.Data.Models;
     using GameOfTournaments.Services;
+    using GameOfTournaments.Shared;
     using GameOfTournaments.Web.Cache.ApplicationUsers;
     using GameOfTournaments.Web.Factories;
     using GameOfTournaments.Web.Models;
@@ -19,10 +20,10 @@
 
     public class UsersController : Controller
     {
-        private readonly UserManager<ApplicationUser> userManager;
-        private readonly IJwtService jwtService;
-        private readonly IApplicationUserCache applicationUserCache;
-        private readonly IOptions<ApplicationSettings> options;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IJwtService _jwtService;
+        private readonly IApplicationUserCache _applicationUserCache;
+        private readonly IOptions<ApplicationSettings> _options;
 
         public UsersController(
             IHttpContextAccessor httpContextAccessor, 
@@ -33,12 +34,12 @@
             IOptions<ApplicationSettings> options)
             : base(httpContextAccessor, authenticationService, applicationUserCache)
         {
-            this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-            this.jwtService = jwtService ?? throw new ArgumentNullException(nameof(jwtService));
-            this.applicationUserCache = applicationUserCache ?? throw new ArgumentNullException(nameof(applicationUserCache));
-            this.options = options ?? throw new ArgumentNullException(nameof(options));
+            this._userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            this._jwtService = jwtService ?? throw new ArgumentNullException(nameof(jwtService));
+            this._applicationUserCache = applicationUserCache ?? throw new ArgumentNullException(nameof(applicationUserCache));
+            this._options = options ?? throw new ArgumentNullException(nameof(options));
 
-            Guard.Against.Null(this.options.Value, nameof(this.options.Value));
+            Guard.Against.Null(this._options.Value, nameof(this._options.Value));
         }
         
         // TODO: Add audit logging.
@@ -61,7 +62,7 @@
             if (!operationResult.Success)
                 return this.BadRequest(operationResult);
             
-            var result = await this.userManager.CreateAsync(user, registerUserModel.Password);
+            var result = await this._userManager.CreateAsync(user, registerUserModel.Password);
             if (!result.Succeeded)
             {
                 result.Errors.Select(e => operationResult.AddErrorMessage($"{e.Code} - {e.Description}"));
@@ -82,38 +83,39 @@
             if (!operationResult.Success)
                 return this.BadRequest(operationResult);
             
-            var user = await this.userManager.FindByNameAsync(loginUserModel.Username);
+            var user = await this._userManager.FindByNameAsync(loginUserModel.Username);
             if (user == null)
             {
                 operationResult.AddErrorMessage("User not found.");
                 return this.Unauthorized(operationResult);
             }
 
-            var passwordValid = await this.userManager.CheckPasswordAsync(user, loginUserModel.Password);
+            var passwordValid = await this._userManager.CheckPasswordAsync(user, loginUserModel.Password);
             if (!passwordValid)
             {
                 operationResult.AddErrorMessage("Invalid username or password.");
                 return this.Unauthorized(operationResult);
             }
 
-            var token = this.jwtService.GenerateToken(user.Id.ToString(), user.UserName, this.options.Value.JwtSecret);
+            var token = this._jwtService.GenerateToken(user.Id.ToString(), user.UserName, this._options.Value.JwtSecret);
             operationResult.Object = new LoginUserResponseModel { Token = token };
 
-            var roles = await this.userManager.GetRolesAsync(user);
-            this.CacheApplicationUser(user, roles?.ToList());
+            // No need to slow the login request.
+            this.CacheApplicationUserAsync(user).ExecuteNonBlocking();
 
             return this.Ok(operationResult);
         }
 
-        private void CacheApplicationUser(ApplicationUser user, List<string> roles)
+        private async Task CacheApplicationUserAsync(ApplicationUser user)
         {
+            var roles = await this._userManager.GetRolesAsync(user);
             var applicationUserCacheModel = new ApplicationUserCacheModel
             {
                 Id = user.Id,
-                Roles = roles,
+                Roles = roles?.ToList(),
             };
             
-            this.applicationUserCache.Cache(applicationUserCacheModel);
+            this._applicationUserCache.Cache(applicationUserCacheModel);
         }
 
         // CR: Remove this test method and implement integration tests
@@ -122,7 +124,7 @@
         [Route(nameof(GetFromCache))]
         public ActionResult GetFromCache(int id)
         {
-            var cached = this.applicationUserCache.Get(id);
+            var cached = this._applicationUserCache.Get(id);
             
             if (cached == null)
                 return this.BadRequest();
