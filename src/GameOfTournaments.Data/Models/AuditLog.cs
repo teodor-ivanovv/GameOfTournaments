@@ -10,5 +10,7 @@
         public DateTimeOffset ActionTime { get; set; }
 
         public bool HasPermissions { get; set; }
+
+        public string EntityId { get; set; }
     }
 }

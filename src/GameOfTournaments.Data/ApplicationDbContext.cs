@@ -10,7 +10,7 @@
             : base(options)
         {
         }
-
+       
         public DbSet<AuditLog> AuditLogs { get; set; }
 
         public DbSet<Log> Logs { get; set; }
