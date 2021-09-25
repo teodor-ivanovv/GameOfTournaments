@@ -19,6 +19,6 @@
         [MaxLength(DescriptionMaximumLength)]
         public string Description { get; set; }
 
-        public Game ToGame() => new() { Name = this.Name, Description = this.Description };
+        public virtual Game ToGame() => new() { Name = this.Name, Description = this.Description };
     }
 }
