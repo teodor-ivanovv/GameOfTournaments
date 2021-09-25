@@ -9,7 +9,23 @@
         {
             try
             {
-                await task;
+                if (task != null)
+                    await task.ConfigureAwait(continueOnCapturedContext: false);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+
+                // TODO: Log
+            }
+        }
+        
+        public static async void ExecuteNonBlocking<T>(this Task<T> task)
+        {
+            try
+            {
+                if (task != null)
+                    await task.ConfigureAwait(continueOnCapturedContext: false);
             }
             catch (Exception e)
             {
