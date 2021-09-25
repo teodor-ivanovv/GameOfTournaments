@@ -7,7 +7,7 @@
     using GameOfTournaments.Services;
     using GameOfTournaments.Shared;
     using Microsoft.AspNetCore.Identity;
-    using static Shared.Roles; 
+    using static Shared.Permissions; 
 
     public class RoleSeeder : IRoleSeeder
     {
@@ -24,7 +24,7 @@
 
         public async Task<bool> AlreadySeededAsync()
         {
-            var gameRole = await this.roleManager.FindByNameAsync(GameCreatorRoleName);
+            var gameRole = await this.roleManager.FindByNameAsync(CanCreateGame);
             return gameRole != null;
         }
 
@@ -37,23 +37,26 @@
                 throw new InvalidOperationException("A system user cannot be found and roles cannot be seeded.");
             
             // Game creator
-            await this.SeedGameCreatorAsync(systemUser);
+            await this.SeedRoleAsync(systemUser, CanCreateGame);
+
+            // Game editor
+            await this.SeedRoleAsync(systemUser, CanUpdateGame);
         }
 
-        private async Task SeedGameCreatorAsync(ApplicationUser systemUser)
+        private async Task SeedRoleAsync(ApplicationUser systemUser, string roleName)
         {
-            var gameCreator = new ApplicationRole
+            var role = new ApplicationRole
             {
-                Action = GameCreatorRoleName, 
-                Name = GameCreatorRoleName,
+                Action = roleName, 
+                Name = roleName,
                 Created = DateTimeOffset.UtcNow,
                 CreatedBy = systemUser.Id, 
                 LastModifiedBy = systemUser.Id,
             };
 
-            var result = await this.roleManager.CreateAsync(gameCreator);
+            var result = await this.roleManager.CreateAsync(role);
             if (!result.Succeeded)
-                await this.logger.LogAsync($"Seeding game role did not succeed. {string.Join(',', result.Errors)}", LogSeverity.Error);
+                await this.logger.LogAsync($"Seeding {roleName} role did not succeed. {string.Join(',', result.Errors)}", LogSeverity.Error);
         }
     }
 }
