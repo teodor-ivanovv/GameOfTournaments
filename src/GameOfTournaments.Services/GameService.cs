@@ -1,6 +1,7 @@
 ﻿namespace GameOfTournaments.Services
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using GameOfTournaments.Data;
@@ -30,13 +31,27 @@
             var operationResult = new OperationResult<Game>();
             operationResult.ValidateNotNull(entity, nameof(GameService), nameof(this.CreateAsync), nameof(entity));
 
-            var inRole = this._authenticationService.IsInRole(Roles.GameCreatorRoleName);
-            operationResult.ValidateInRole(inRole, Roles.GameCreatorRoleName, this._auditLogger.ConstructLogAction(inRole, Roles.GameCreatorRoleName));
+            var inRole = this._authenticationService.IsInRole(Permissions.CanCreateGame);
+            operationResult.ValidateInRole(inRole, Permissions.CanCreateGame, this._auditLogger.ConstructLogAction(inRole, Permissions.CanCreateGame));
             
             if (!operationResult.Success)
                 return Task.FromResult<IOperationResult<Game>>(operationResult);
             
             return base.CreateAsync(entity, cancellationToken);
+        }
+
+        public override Task<IOperationResult<Game>> UpdateAsync(IEnumerable<object> identifiers, Game entity, CancellationToken cancellationToken = default)
+        {
+            var operationResult = new OperationResult<Game>();
+            operationResult.ValidateNotNull(entity, nameof(GameService), nameof(this.UpdateAsync), nameof(entity));
+
+            var inRole = this._authenticationService.IsInRole(Permissions.CanUpdateGame);
+            operationResult.ValidateInRole(inRole, Permissions.CanUpdateGame, this._auditLogger.ConstructLogAction(inRole, Permissions.CanUpdateGame, entity.Id));
+            
+            if (!operationResult.Success)
+                return Task.FromResult<IOperationResult<Game>>(operationResult);
+            
+            return base.UpdateAsync(identifiers, entity, cancellationToken);
         }
     }
 }

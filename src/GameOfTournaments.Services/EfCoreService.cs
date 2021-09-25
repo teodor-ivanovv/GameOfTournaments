@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Net.Mime;
     using System.Threading;
     using System.Threading.Tasks;
     using GameOfTournaments.Data;
@@ -57,8 +58,13 @@
             if (entities == null)
                 throw new ArgumentNullException(nameof(entities));
 
-            await using var dbContext = this.ContextFactory.CreateDbContext();
             var enumerated = entities.ToList();
+            
+            foreach (var entity in enumerated)
+                this.ApplyAuditInformation(entity);
+            
+            await using var dbContext = this.ContextFactory.CreateDbContext();
+            
             await dbContext.AddRangeAsync(enumerated, cancellationToken);
             var writtenEntries = await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -76,9 +82,8 @@
         public async Task<TEntity> GetAsync(IEnumerable<object> identifiers, CancellationToken cancellationToken = default)
         {
             var enumerated = identifiers as object[] ?? identifiers.ToArray();
-
-            if (identifiers == null || !enumerated.Any())
-                throw new ArgumentNullException(nameof(identifiers));
+            if (!enumerated.Any())
+                return default;
 
             await using var dbContext = this.ContextFactory.CreateDbContext();
 
@@ -209,11 +214,20 @@
         }
 
         /// <inheritdoc />
-        public async Task<int> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
+        public virtual async Task<IOperationResult<TEntity>> UpdateAsync(IEnumerable<object> identifiers, TEntity entity, CancellationToken cancellationToken = default)
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            var operationResult = new OperationResult<TEntity>();
+            operationResult.ValidateNotNull(entity, nameof(EfCoreService<TEntity>), nameof(this.UpdateAsync), nameof(entity));
+                     
+            if (!operationResult.Success)
+                return operationResult;
 
+            var databaseEntity = await this.GetAsync(identifiers, cancellationToken);
+            if (databaseEntity == null)
+                return new NotExistingOperationResult<TEntity>(typeof(TEntity).Name);
+   
+            this.ApplyAuditInformation(entity, databaseEntity);
+            
             await using var dbContext = this.ContextFactory.CreateDbContext();
             dbContext.Set<TEntity>().Update(entity);
             var affectedRows = await dbContext.SaveChangesAsync(cancellationToken);
@@ -225,7 +239,10 @@
                 nameof(this.UpdateAsync), 
                 typeof(TEntity).FullName);
 
-            return affectedRows;
+            operationResult.AffectedRows = affectedRows;
+            operationResult.Object = entity;
+
+            return operationResult;
         }
 
         /// <inheritdoc />
@@ -290,6 +307,27 @@
                 }
                 else
                 {
+                    auditModel.LastModified = DateTimeOffset.UtcNow;
+                    auditModel.LastModifiedBy = this._authenticationService.Context?.Id ?? 0;
+                }
+            }
+        }
+        
+        private void ApplyAuditInformation(TEntity entity, TEntity databaseEntity)
+        {
+            if (entity is IAuditInformation auditModel && databaseEntity is IAuditInformation databaseAuditModel)
+            {
+                var newEntity = databaseAuditModel.Created == default;
+
+                if (newEntity)
+                {
+                    auditModel.Created = DateTimeOffset.UtcNow;
+                    auditModel.CreatedBy = this._authenticationService.Context?.Id ?? 0;
+                }
+                else
+                {
+                    auditModel.Created = databaseAuditModel.Created;
+                    auditModel.CreatedBy = databaseAuditModel.CreatedBy;
                     auditModel.LastModified = DateTimeOffset.UtcNow;
                     auditModel.LastModifiedBy = this._authenticationService.Context?.Id ?? 0;
                 }

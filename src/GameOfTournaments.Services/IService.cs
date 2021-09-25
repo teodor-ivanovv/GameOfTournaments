@@ -16,7 +16,7 @@
     /// </summary>
     /// <param name="entity">The entity to insert in the database.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken" /> used to propagate notifications that the operation should be cancelled.</param>
-    /// <returns>A <see cref="Task"/> of <see cref="IOperationResult{T}"/> of <see cref="TEntity"/> representing the affected rows of the operation.</returns>
+    /// <returns>A <see cref="Task"/> of <see cref="IOperationResult{T}"/> of <see cref="TEntity"/> representing the created entity.</returns>
     Task<IOperationResult<TEntity>> CreateAsync(TEntity entity, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -75,8 +75,8 @@
     /// <param name="entity">The entity to update.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken" /> used to propagate notifications that the operation should be cancelled.</param>
     /// <exception cref="Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException">Thrown when primary keys have been changed.</exception>
-    /// <returns>A <see cref="Task{TResult}"/> of <see cref="int"/> representing the affected rows of the update operation.</returns>
-    Task<int> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default);
+    /// <returns>A <see cref="Task{TResult}"/> of <see cref="IOperationResult{T}"/> <see cref="TEntity"/> representing the updated entity.</returns>
+    Task<IOperationResult<TEntity>> UpdateAsync(IEnumerable<object> identifiers, TEntity entity, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes an entity of type <see cref="TEntity"/> by the given <see cref="IEnumerable{T}"/> of <see cref="object"/> identifiers.
