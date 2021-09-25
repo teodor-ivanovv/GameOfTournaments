@@ -117,19 +117,5 @@
             
             this._applicationUserCache.Cache(applicationUserCacheModel);
         }
-
-        // CR: Remove this test method and implement integration tests
-        [HttpGet]
-        [AllowAnonymous]
-        [Route(nameof(GetFromCache))]
-        public ActionResult GetFromCache(int id)
-        {
-            var cached = this._applicationUserCache.Get(id);
-            
-            if (cached == null)
-                return this.BadRequest();
-
-            return this.Ok(cached);
-        }
     }
 }
