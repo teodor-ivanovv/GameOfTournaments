@@ -6,8 +6,8 @@
 
     public class TagService : EfCoreService<Tag>, ITagService
     {
-        public TagService(IDbContextFactory<ApplicationDbContext> contextFactory)
-            : base(contextFactory)
+        public TagService(IDbContextFactory<ApplicationDbContext> contextFactory, IAuthenticationService authenticationService)
+            : base(contextFactory, authenticationService)
         {
         }
     }

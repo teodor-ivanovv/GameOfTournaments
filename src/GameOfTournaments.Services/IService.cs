@@ -5,6 +5,7 @@
     using System.Linq.Expressions;
     using System.Threading;
     using System.Threading.Tasks;
+    using GameOfTournaments.Data.Infrastructure;
     using GameOfTournaments.Services.Infrastructure;
     using Microsoft.EntityFrameworkCore;
 
@@ -15,8 +16,8 @@
     /// </summary>
     /// <param name="entity">The entity to insert in the database.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken" /> used to propagate notifications that the operation should be cancelled.</param>
-    /// <returns>A <see cref="Task"/> of <see cref="int"/> representing the affected rows of the operation.</returns>
-    Task<int> CreateAsync(TEntity entity, CancellationToken cancellationToken = default);
+    /// <returns>A <see cref="Task"/> of <see cref="IOperationResult{T}"/> of <see cref="TEntity"/> representing the affected rows of the operation.</returns>
+    Task<IOperationResult<TEntity>> CreateAsync(TEntity entity, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates/inserts the given <paramref name="entities"/> in the registered database provider.

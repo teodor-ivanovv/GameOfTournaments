@@ -6,8 +6,8 @@
 
     public class TournamentService : EfCoreService<Tournament>, ITournamentService
     {
-        public TournamentService(IDbContextFactory<ApplicationDbContext> contextFactory)
-            : base(contextFactory)
+        public TournamentService(IDbContextFactory<ApplicationDbContext> contextFactory, IAuthenticationService authenticationService)
+            : base(contextFactory, authenticationService)
         {
         }
     }

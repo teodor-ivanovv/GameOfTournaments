@@ -6,8 +6,8 @@
 
     public class NewsService : EfCoreService<News>, INewsService
     {
-        public NewsService(IDbContextFactory<ApplicationDbContext> contextFactory)
-            : base(contextFactory)
+        public NewsService(IDbContextFactory<ApplicationDbContext> contextFactory, IAuthenticationService authenticationService)
+            : base(contextFactory, authenticationService)
         {
         }
     }

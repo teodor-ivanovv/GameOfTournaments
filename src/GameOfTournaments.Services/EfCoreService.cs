@@ -7,37 +7,48 @@
     using System.Threading;
     using System.Threading.Tasks;
     using GameOfTournaments.Data;
+    using GameOfTournaments.Data.Infrastructure;
     using GameOfTournaments.Services.Infrastructure;
     using Microsoft.EntityFrameworkCore;
     using static Data.Infrastructure.DatabaseIntegrity;
     
     public abstract class EfCoreService<TEntity> : IEfCoreService<TEntity> where TEntity : class
     {
+        private readonly IAuthenticationService _authenticationService;
+
         protected IDbContextFactory<ApplicationDbContext> ContextFactory { get; private set; }
 
-        protected EfCoreService(IDbContextFactory<ApplicationDbContext> contextFactory)
+        protected EfCoreService(IDbContextFactory<ApplicationDbContext> contextFactory, IAuthenticationService authenticationService)
         {
             this.ContextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
+            this._authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
         }
         
         /// <inheritdoc />
-        public virtual async Task<int> CreateAsync(TEntity entity, CancellationToken cancellationToken = default)
+        public virtual async Task<IOperationResult<TEntity>> CreateAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            var operationResult = new OperationResult<TEntity>();
+            operationResult.ValidateNotNull(entity, nameof(EfCoreService<TEntity>), nameof(this.CreateAsync), nameof(entity));
 
+            if (!operationResult.Success)
+                return operationResult;
+
+            this.ApplyAuditInformation(entity);
+            
             await using var dbContext = this.ContextFactory.CreateDbContext();
             await dbContext.AddAsync(entity, cancellationToken);
-            var writtenEntries = await dbContext.SaveChangesAsync(cancellationToken);
+            var affectedRows = await dbContext.SaveChangesAsync(cancellationToken);
 
-            ValidateWrittenEntries(
-                writtenEntries,
+            ValidateAffectedRows(
+                affectedRows,
                 expected: 1,
                 nameof(EfCoreService<TEntity>), 
                 nameof(this.CreateAsync), 
                 typeof(TEntity).FullName);
 
-            return writtenEntries;
+            operationResult.AffectedRows = affectedRows;
+            operationResult.Object = entity;
+            return operationResult;
         }
 
         /// <inheritdoc />
@@ -51,7 +62,7 @@
             await dbContext.AddRangeAsync(enumerated, cancellationToken);
             var writtenEntries = await dbContext.SaveChangesAsync(cancellationToken);
 
-            ValidateWrittenEntries(
+            ValidateAffectedRows(
                 writtenEntries,
                 expected: enumerated.Count, 
                 nameof(EfCoreService<TEntity>), 
@@ -207,7 +218,7 @@
             dbContext.Set<TEntity>().Update(entity);
             var affectedRows = await dbContext.SaveChangesAsync(cancellationToken);
 
-            ValidateWrittenEntries(
+            ValidateAffectedRows(
                 affectedRows,
                 expected: 1, 
                 nameof(EfCoreService<TEntity>), 
@@ -234,7 +245,7 @@
             dbContext.Remove(entity);
             var affectedRows = await dbContext.SaveChangesAsync(cancellationToken);
 
-            ValidateWrittenEntries(
+            ValidateAffectedRows(
                 affectedRows,
                 expected: 1,
                 nameof(EfCoreService<TEntity>),
@@ -256,7 +267,7 @@
             dbContext.RemoveRange(entities);
             var affectedRows = await dbContext.SaveChangesAsync(cancellationToken);
 
-            ValidateWrittenEntries(
+            ValidateAffectedRows(
                 affectedRows, 
                 expected: entities.Count, 
                 nameof(EfCoreService<TEntity>),
@@ -264,6 +275,25 @@
                 typeof(TEntity).FullName);
 
             return affectedRows;
+        }
+
+        private void ApplyAuditInformation(TEntity entity)
+        {
+            if (entity is IAuditInformation auditModel)
+            {
+                var newEntity = auditModel.Created == default;
+
+                if (newEntity)
+                {
+                    auditModel.Created = DateTimeOffset.UtcNow;
+                    auditModel.CreatedBy = this._authenticationService.Context?.Id ?? 0;
+                }
+                else
+                {
+                    auditModel.LastModified = DateTimeOffset.UtcNow;
+                    auditModel.LastModifiedBy = this._authenticationService.Context?.Id ?? 0;
+                }
+            }
         }
     }
 }

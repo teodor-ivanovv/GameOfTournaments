@@ -7,7 +7,7 @@
     using GameOfTournaments.Services;
     using GameOfTournaments.Shared;
     using Microsoft.AspNetCore.Identity;
-    using static Shared.Actions; 
+    using static Shared.Roles; 
 
     public class RoleSeeder : IRoleSeeder
     {

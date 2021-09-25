@@ -6,8 +6,8 @@
 
     public class BetService : EfCoreService<Bet>, IBetService
     {
-        public BetService(IDbContextFactory<ApplicationDbContext> contextFactory)
-            : base(contextFactory)
+        public BetService(IDbContextFactory<ApplicationDbContext> contextFactory, IAuthenticationService authenticationService)
+            : base(contextFactory, authenticationService)
         {
         }
     }

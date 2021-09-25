@@ -10,8 +10,8 @@
 
     public class Logger : EfCoreService<Log>, ILogger
     {
-        public Logger(IDbContextFactory<ApplicationDbContext> contextFactory)
-            : base(contextFactory)
+        public Logger(IDbContextFactory<ApplicationDbContext> contextFactory, IAuthenticationService authenticationService)
+            : base(contextFactory, authenticationService)
         {
         }
         
