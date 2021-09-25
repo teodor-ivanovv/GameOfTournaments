@@ -3,6 +3,7 @@
     using System;
     using System.Net;
     using System.Security.Claims;
+    using GameOfTournaments.Data.Infrastructure;
     using GameOfTournaments.Services;
     using GameOfTournaments.Services.Infrastructure;
     using GameOfTournaments.Web.Cache.ApplicationUsers;
@@ -16,7 +17,6 @@
     public abstract class Controller : ControllerBase
     {
         private const int NegativeId = -1;
-        
         private readonly IApplicationUserCache _applicationUserCache;
 
         protected IAuthenticationService AuthenticationService { get; }
@@ -36,6 +36,14 @@
             }
             
             this.SetAuthenticated(integerId, httpContext, ipAddress, cachedUser);
+        }
+
+        protected ActionResult<T> FromOperationResult<T>(IOperationResult<T> operationResult)
+        {
+            if (operationResult.Success)
+                return this.Ok(operationResult);
+
+            return this.BadRequest(operationResult);
         }
 
         private static HttpContext ExtractContextData(IHttpContextAccessor httpContextAccessor, out IPAddress ipAddress, out int integerId)
