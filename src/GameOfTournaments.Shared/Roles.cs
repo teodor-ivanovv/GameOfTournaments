@@ -1,7 +1,10 @@
 ﻿namespace GameOfTournaments.Shared
 {
-    public class Actions
+    public class Roles
     {
+        /// <summary>
+        /// Can create games.
+        /// </summary>
         public const string GameCreatorRoleName = "Game creator";
     }
 }
