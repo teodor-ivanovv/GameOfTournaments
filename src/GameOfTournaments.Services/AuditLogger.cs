@@ -39,7 +39,15 @@
 
             return auditLog;
         }
-        
+
+        public AuditLog Construct<T>(string action, DateTimeOffset actionTime, string message, T entityId, bool hasPermissions)
+        {
+            var auditLog = this.Construct(action, actionTime, message, hasPermissions);
+            auditLog.EntityId = entityId.ToString();
+
+            return auditLog;
+        }
+
         public Action ConstructLogAction(bool inRole, string role)
             => this.LogAsync(
                 this.Construct(
@@ -47,6 +55,16 @@
                     DateTimeOffset.UtcNow, 
                     string.Empty,
                     inRole))
+                .ExecuteNonBlocking;
+        
+        public Action ConstructLogAction<T>(bool inRole, string role, T entityId)
+            => this.LogAsync(
+                    this.Construct(
+                        role, 
+                        DateTimeOffset.UtcNow, 
+                        string.Empty,
+                        entityId,
+                        inRole))
                 .ExecuteNonBlocking;
     }
 }
