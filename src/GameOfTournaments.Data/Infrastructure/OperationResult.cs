@@ -1,5 +1,6 @@
 ﻿namespace GameOfTournaments.Data.Infrastructure
 {
+    using System;
     using System.Collections.Generic;
     using Ardalis.GuardClauses;
 
@@ -14,6 +15,8 @@
         public bool Success { get; private set; } = true;
 
         public int Code { get; private set; }
+        
+        public int AffectedRows { get; set; }
 
         public T Object { get; set; }
 
@@ -52,11 +55,37 @@
             return this;
         }
 
+        public IOperationResult<T> ValidateInRole(bool inRole, string role, Action auditLog)
+        {
+            if(!inRole)
+                this.AddErrorMessage("Current user does not have permissions for that action!");
+
+            auditLog?.Invoke();
+
+            return this;
+        }
+
         public IOperationResult<T> SetCode(int code)
         {
             this.Code = code;
 
             return this;
+        }
+
+        public IOperationResult<TNewType> ChangeObjectType<TNewType>(TNewType newObject)
+        {
+            var operationResult = new OperationResult<TNewType>()
+            {
+                Code = this.Code,
+                Object = newObject,
+                Success = this.Success,
+                AffectedRows = this.AffectedRows,
+            };
+
+            foreach (var error in this.Errors)
+                operationResult.AddErrorMessage(error);
+
+            return operationResult;
         }
     }
 }
