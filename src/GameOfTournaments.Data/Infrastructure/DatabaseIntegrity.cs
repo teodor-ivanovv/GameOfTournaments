@@ -2,7 +2,7 @@
 {
     public static class DatabaseIntegrity
     {
-        public static void ValidateWrittenEntries(int affectedRows, int expected, string className, string method, string entityType)
+        public static void ValidateAffectedRows(int affectedRows, int expected, string className, string method, string entityType)
         {
             // TODO: log message
         }
