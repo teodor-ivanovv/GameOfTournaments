@@ -1,8 +1,6 @@
 ﻿namespace GameOfTournaments.Web.Factories
 {
-    using Ardalis.GuardClauses;
     using GameOfTournaments.Data.Models;
-    using GameOfTournaments.Web.Models;
     using GameOfTournaments.Web.Models.Game;
 
     public static class GameFactory
@@ -29,6 +27,11 @@
                 return default;
             
             return new UpdateGameResponseModel { Name = game.Name, Description = game.Description, UpdatedDate = game.LastModified };
+        }
+        
+        public static DeleteGameResponseModel DeleteGameResponseModel()
+        {
+            return default;
         }
     }
 }
