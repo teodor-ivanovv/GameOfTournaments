@@ -24,8 +24,8 @@
     /// </summary>
     /// <param name="entities">The entities to insert in the database.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken" /> used to propagate notifications that the operation should be cancelled.</param>
-    /// <returns>A <see cref="Task{TResult}"/> of <see cref="int"/> representing the affected rows of the operation.</returns>
-    Task<int> CreateManyAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
+    /// <returns>A <see cref="Task{TResult}"/> of <see cref="IOperationResult{T}"/> of <see cref="IEnumerable{T}"/> of <see cref="TEntity"/> representing the created entities.</returns>
+    Task<IOperationResult<IEnumerable<TEntity>>> CreateManyAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets/retrieves an entity of <typeparamref name="TEntity"/> by the given <see cref="IEnumerable{T}"/> of <see cref="object"/> identifiers.

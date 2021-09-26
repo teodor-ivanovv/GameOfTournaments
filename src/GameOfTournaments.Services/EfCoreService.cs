@@ -53,12 +53,14 @@
         }
 
         /// <inheritdoc />
-        public async Task<int> CreateManyAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+        public virtual async Task<IOperationResult<IEnumerable<TEntity>>> CreateManyAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
         {
-            if (entities == null)
-                throw new ArgumentNullException(nameof(entities));
+            var operationResult = new OperationResult<IEnumerable<TEntity>>();
+            var enumerated = entities?.ToList();
 
-            var enumerated = entities.ToList();
+            operationResult.ValidateNotNull(enumerated, nameof(EfCoreService<TEntity>), nameof(this.CreateManyAsync), nameof(entities));
+            if (!operationResult.Success)
+                return operationResult;
             
             foreach (var entity in enumerated)
                 this.ApplyAuditInformation(entity);
@@ -66,16 +68,19 @@
             await using var dbContext = this.ContextFactory.CreateDbContext();
             
             await dbContext.AddRangeAsync(enumerated, cancellationToken);
-            var writtenEntries = await dbContext.SaveChangesAsync(cancellationToken);
+            var affectedRows = await dbContext.SaveChangesAsync(cancellationToken);
 
             ValidateAffectedRows(
-                writtenEntries,
+                affectedRows,
                 expected: enumerated.Count, 
                 nameof(EfCoreService<TEntity>), 
                 nameof(this.CreateAsync), 
                 typeof(TEntity).FullName);
 
-            return writtenEntries;
+            operationResult.AffectedRows = affectedRows;
+            operationResult.Object = enumerated;
+
+            return operationResult;
         }
 
         /// <inheritdoc />

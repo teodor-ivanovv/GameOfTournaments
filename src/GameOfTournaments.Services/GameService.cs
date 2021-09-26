@@ -40,6 +40,20 @@
             
             return base.CreateAsync(entity, cancellationToken);
         }
+        
+        public override Task<IOperationResult<IEnumerable<Game>>> CreateManyAsync(IEnumerable<Game> entities, CancellationToken cancellationToken = default)
+        {
+            var operationResult = new OperationResult<IEnumerable<Game>>();
+            operationResult.ValidateNotNull(entities, nameof(GameService), nameof(this.CreateManyAsync), nameof(entities));
+
+            var inRole = this._authenticationService.IsInRole(Permissions.CanCreateGame);
+            operationResult.ValidateInRole(inRole, Permissions.CanCreateGame, this._auditLogger.ConstructLogAction(inRole, Permissions.CanCreateGame));
+            
+            if (!operationResult.Success)
+                return Task.FromResult<IOperationResult<IEnumerable<Game>>>(operationResult);
+            
+            return base.CreateManyAsync(entities, cancellationToken);
+        }
 
         public override Task<IOperationResult<Game>> UpdateAsync(IEnumerable<object> identifiers, Game entity, CancellationToken cancellationToken = default)
         {
