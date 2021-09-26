@@ -83,8 +83,8 @@
     /// </summary>
     /// <param name="identifiers">The identifiers of the entity to be deleted.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken" /> used to propagate notifications that the operation should be cancelled.</param>
-    /// <returns>A <see cref="Task{TResult}"/> of <see cref="int"/> representing the affected rows of the delete operation.</returns>
-    Task<int> DeleteAsync(IEnumerable<object> identifiers, CancellationToken cancellationToken = default);
+    /// <returns>A <see cref="Task{TResult}"/> of <see cref="IOperationResult{T}"/> of the <see cref="TEntity"/> representing the deleted entity.</returns>
+    Task<IOperationResult<TEntity>> DeleteAsync(IEnumerable<object> identifiers, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Deletes all entities of type <see cref="TEntity"/> by the given <paramref name="filterExpression"/>.

@@ -246,17 +246,16 @@
         }
 
         /// <inheritdoc />
-        public async Task<int> DeleteAsync(IEnumerable<object> identifiers, CancellationToken cancellationToken = default)
+        public virtual async Task<IOperationResult<TEntity>> DeleteAsync(IEnumerable<object> identifiers, CancellationToken cancellationToken = default)
         {
+            var operationResult = new OperationResult<TEntity>();
             var enumerated = identifiers as object[] ?? identifiers.ToArray();
-
-            if (identifiers == null || !enumerated.Any())
-                throw new ArgumentNullException(nameof(identifiers));
+            if (!enumerated.Any())
+                return new NotExistingOperationResult<TEntity>(typeof(TEntity).Name);
 
             var entity = await this.GetAsync(enumerated.ToArray(), cancellationToken);
-
             if (entity == null)
-                return 0;
+                return new NotExistingOperationResult<TEntity>(typeof(TEntity).Name);
 
             await using var dbContext = this.ContextFactory.CreateDbContext();
             dbContext.Remove(entity);
@@ -269,7 +268,10 @@
                 nameof(this.DeleteAsync), 
                 typeof(TEntity).FullName);
 
-            return affectedRows;
+            operationResult.AffectedRows = affectedRows;
+            operationResult.Object = entity;
+
+            return operationResult;
         }
 
         /// <inheritdoc />
