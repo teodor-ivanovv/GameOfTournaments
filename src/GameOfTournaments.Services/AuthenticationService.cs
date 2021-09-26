@@ -6,7 +6,7 @@
     {
         public IAuthenticationContext Context { get; set; }
 
-        public bool Authenticated => this.Context.Authenticated;
+        public bool Authenticated => this.Context?.Authenticated ?? false;
 
         public void Set(IAuthenticationContext context) => this.Context = context;
 
