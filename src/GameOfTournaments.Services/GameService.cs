@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using GameOfTournaments.Data;
@@ -52,6 +53,23 @@
                 return Task.FromResult<IOperationResult<Game>>(operationResult);
             
             return base.UpdateAsync(identifiers, entity, cancellationToken);
+        }
+
+        public override Task<IOperationResult<Game>> DeleteAsync(IEnumerable<object> identifiers, CancellationToken cancellationToken = default)
+        {
+            var operationResult = new OperationResult<Game>();
+            var enumerated = identifiers?.ToList();
+            
+            var inRole = this._authenticationService.IsInRole(Permissions.CanDeleteGame);
+            operationResult.ValidateInRole(
+                inRole,
+                Permissions.CanDeleteGame,
+                this._auditLogger.ConstructLogAction(inRole, Permissions.CanDeleteGame, string.Join(", ", enumerated ?? new List<object>())));
+            
+            if (!operationResult.Success)
+                return Task.FromResult<IOperationResult<Game>>(operationResult);
+
+            return base.DeleteAsync(enumerated, cancellationToken);
         }
     }
 }

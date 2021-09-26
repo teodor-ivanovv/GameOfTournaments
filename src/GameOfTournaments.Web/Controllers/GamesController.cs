@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using GameOfTournaments.Data.Models;
     using GameOfTournaments.Services;
@@ -43,7 +44,7 @@
         }
         
         [HttpPost]
-        public async Task<ActionResult<CreateGameResponseModel>> Create(GameViewModel gameViewModel)
+        public async Task<ActionResult<CreateGameResponseModel>> Create(GameViewModel gameViewModel, CancellationToken cancellationToken)
         {
             if (!this.AuthenticationService.Authenticated)
                 return this.Unauthorized();
@@ -51,14 +52,14 @@
             if (gameViewModel == null)
                 return this.BadRequest(nameof(gameViewModel));
 
-            var operationResult = await this.gameService.CreateAsync(gameViewModel.ToGame());
+            var operationResult = await this.gameService.CreateAsync(gameViewModel.ToGame(), cancellationToken);
             var responseModelOperationResult = operationResult.ChangeObjectType(GameFactory.CreateGameResponseModel(operationResult.Object));
 
             return this.FromOperationResult(responseModelOperationResult);
         }
         
         [HttpPut]
-        public async Task<ActionResult<UpdateGameResponseModel>> Update(UpdateGameModel updateGameModel)
+        public async Task<ActionResult<UpdateGameResponseModel>> Update(UpdateGameModel updateGameModel, CancellationToken cancellationToken)
         {
             if (!this.AuthenticationService.Authenticated)
                 return this.Unauthorized();
@@ -66,8 +67,20 @@
             if (updateGameModel == null)
                 return this.BadRequest(nameof(updateGameModel));
 
-            var operationResult = await this.gameService.UpdateAsync(new object[] { updateGameModel.Id }, updateGameModel.ToGame());
+            var operationResult = await this.gameService.UpdateAsync(new object[] { updateGameModel.Id }, updateGameModel.ToGame(), cancellationToken);
             var responseModelOperationResult = operationResult.ChangeObjectType(GameFactory.UpdateGameResponseModel(operationResult.Object));
+
+            return this.FromOperationResult(responseModelOperationResult);
+        }
+        
+        [HttpDelete]
+        public async Task<ActionResult<DeleteGameResponseModel>> Delete(int id, CancellationToken cancellationToken)
+        {
+            if (!this.AuthenticationService.Authenticated)
+                return this.Unauthorized();
+
+            var operationResult = await this.gameService.DeleteAsync(new object[] { id }, cancellationToken);
+            var responseModelOperationResult = operationResult.ChangeObjectType(GameFactory.DeleteGameResponseModel());
 
             return this.FromOperationResult(responseModelOperationResult);
         }
