@@ -6,7 +6,7 @@ namespace CacheTests
     using GameOfTournamentsTests;
     using Xunit;
 
-    public class ApplicationUserCacheTests : GameOfTournamentsBaseTests
+    public class ApplicationUserCacheTests : BaseTests
     {
         private readonly IApplicationUserCache _applicationUserCache;
 
