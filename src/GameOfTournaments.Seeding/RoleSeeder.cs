@@ -1,6 +1,7 @@
 ﻿namespace GameOfTournaments.Seeder
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using GameOfTournaments.Data.Infrastructure;
     using GameOfTournaments.Data.Models;
@@ -22,11 +23,7 @@
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<bool> AlreadySeededAsync()
-        {
-            var gameRole = await this.roleManager.FindByNameAsync(CanCreateGame);
-            return gameRole != null;
-        }
+        public Task<bool> AlreadySeededAsync() => Task.FromResult(false);
 
         public async Task SeedAsync()
         {
@@ -35,16 +32,23 @@
 
             if (systemUser == null)
                 throw new InvalidOperationException("A system user cannot be found and roles cannot be seeded.");
-            
+
             // Game creator
-            await this.SeedRoleAsync(systemUser, CanCreateGame);
+            await this.EnsureRoleAsync(systemUser, CanCreateGame);
 
             // Game editor
-            await this.SeedRoleAsync(systemUser, CanUpdateGame);
+            await this.EnsureRoleAsync(systemUser, CanUpdateGame);
+            
+            // Game delete role
+            await this.EnsureRoleAsync(systemUser, CanDeleteGame);
         }
 
-        private async Task SeedRoleAsync(ApplicationUser systemUser, string roleName)
+        private async Task EnsureRoleAsync(ApplicationUser systemUser, string roleName)
         {
+            var exists = await this.roleManager.RoleExistsAsync(roleName);
+            if (exists)
+                return;
+            
             var role = new ApplicationRole
             {
                 Action = roleName, 
