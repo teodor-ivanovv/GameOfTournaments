@@ -1,20 +1,14 @@
 ﻿namespace GameOfTournaments.Shared
 {
-    public class Permissions
+    using System;
+
+    [Flags]
+    public enum Permissions
     {
-        /// <summary>
-        /// Can create games.
-        /// </summary>
-        public const string CanCreateGame = "Game_create";
-        
-        /// <summary>
-        /// Can update games.
-        /// </summary>
-        public const string CanUpdateGame = "Game_update";
-        
-        /// <summary>
-        /// Can delete games.
-        /// </summary>
-        public const string CanDeleteGame = "Game_delete";
+        View = 1 << 0,
+        Create = 1 << 1,
+        Update = 1 << 2,
+        SoftDelete = 1 << 3,
+        HardDelete = 1 << 4,
     }
 }
