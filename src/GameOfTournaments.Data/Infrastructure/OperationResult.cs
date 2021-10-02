@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using Ardalis.GuardClauses;
+    using GameOfTournaments.Shared;
 
     public class OperationResult : OperationResult<object>
     {
@@ -55,9 +56,9 @@
             return this;
         }
 
-        public IOperationResult<T> ValidateInRole(bool inRole, string role, Action auditLog)
+        public IOperationResult<T> ValidatePermissions(bool hasPermissions, Action auditLog)
         {
-            if(!inRole)
+            if(!hasPermissions)
                 this.AddErrorMessage("Current user does not have permissions for that action!");
 
             auditLog?.Invoke();

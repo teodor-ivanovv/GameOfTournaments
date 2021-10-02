@@ -4,6 +4,7 @@
     using GameOfTournaments.Data.Infrastructure;
     using Microsoft.AspNetCore.Identity;
 
+    // TODO: Not used anymore
     public class ApplicationRole : IdentityRole<int>, IAuditInformation
     {
         public string Action { get; set; }

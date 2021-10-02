@@ -1,5 +1,6 @@
 ﻿namespace GameOfTournaments.Data.Models
 {
+    using System.Collections.Generic;
     using Microsoft.AspNetCore.Identity;
 
     public class ApplicationUser : IdentityUser<int>
@@ -13,5 +14,7 @@
         public string LastName { get; set; }
 
         public bool Male { get; set; }
+
+        public IEnumerable<Permission> Permissions { get; set; } = new HashSet<Permission>();
     }
 }

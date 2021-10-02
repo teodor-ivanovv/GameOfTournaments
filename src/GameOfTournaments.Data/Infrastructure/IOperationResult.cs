@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using GameOfTournaments.Shared;
 
     public interface IOperationResult : IOperationResult<object>
     {
@@ -25,7 +26,7 @@
         
         IOperationResult<T> ValidateNotWhiteSpace(string obj, string className, string method, string parameter);
 
-        IOperationResult<T> ValidateInRole(bool inRole, string role, Action auditLog);
+        IOperationResult<T> ValidatePermissions(bool hasPermissions, Action auditLog);
 
         IOperationResult<T> SetCode(int code);
 

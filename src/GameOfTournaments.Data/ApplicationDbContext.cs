@@ -10,7 +10,17 @@
             : base(options)
         {
         }
-       
+        
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+            
+            builder.Entity<ApplicationUser>()
+                .HasMany(u => u.Permissions)
+                .WithOne(p => p.ApplicationUser)
+                .HasForeignKey(p => p.ApplicationUserId);
+        }
+
         public DbSet<AuditLog> AuditLogs { get; set; }
 
         public DbSet<Log> Logs { get; set; }
@@ -24,5 +34,7 @@
         public DbSet<News> News { get; set; }
 
         public DbSet<Tournament> Tournaments { get; set; }
+        
+        public DbSet<Permission> Permissions { get; set; }
     }
 }
