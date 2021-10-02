@@ -8,6 +8,7 @@
     using GameOfTournaments.Data.Infrastructure;
     using GameOfTournaments.Data.Models;
     using GameOfTournaments.Services;
+    using GameOfTournaments.Services.Infrastructure;
     using GameOfTournaments.Shared;
     using GameOfTournaments.Web.Cache.ApplicationUsers;
     using GameOfTournaments.Web.Factories;
@@ -23,6 +24,7 @@
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IJwtService _jwtService;
         private readonly IApplicationUserCache _applicationUserCache;
+        private readonly IPermissionService _permissionService;
         private readonly IOptions<ApplicationSettings> _options;
 
         public UsersController(
@@ -31,12 +33,14 @@
             UserManager<ApplicationUser> userManager, 
             IJwtService jwtService,
             IApplicationUserCache applicationUserCache,
+            IPermissionService permissionService,
             IOptions<ApplicationSettings> options)
             : base(httpContextAccessor, authenticationService, applicationUserCache)
         {
             this._userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             this._jwtService = jwtService ?? throw new ArgumentNullException(nameof(jwtService));
             this._applicationUserCache = applicationUserCache ?? throw new ArgumentNullException(nameof(applicationUserCache));
+            this._permissionService = permissionService ?? throw new ArgumentNullException(nameof(permissionService));
             this._options = options ?? throw new ArgumentNullException(nameof(options));
 
             Guard.Against.Null(this._options.Value, nameof(this._options.Value));
@@ -101,18 +105,30 @@
             operationResult.Object = new LoginUserResponseModel { Token = token };
 
             // No need to slow the login request.
-            this.CacheApplicationUserAsync(user).ExecuteNonBlocking();
+            this.CacheApplicationUserAsync(user)
+                .ExecuteNonBlocking();
 
             return this.Ok(operationResult);
         }
 
         private async Task CacheApplicationUserAsync(ApplicationUser user)
         {
-            var roles = await this._userManager.GetRolesAsync(user);
+            var permissions = await this._permissionService.GetAsync(
+                new GetOptions<Permission, int, PermissionModel>()
+                {
+                    FilterExpression = p => p.ApplicationUserId == user.Id,
+                    Projection = new ProjectionOptions<Permission, PermissionModel>(
+                        p => new PermissionModel
+                        {
+                            Scope = p.Scope,
+                            Permissions = p.Permissions,
+                        }),
+                });
+
             var applicationUserCacheModel = new ApplicationUserCacheModel
             {
                 Id = user.Id,
-                Roles = roles?.ToList(),
+                Permissions = permissions?.ToList(),
             };
             
             this._applicationUserCache.Cache(applicationUserCacheModel);

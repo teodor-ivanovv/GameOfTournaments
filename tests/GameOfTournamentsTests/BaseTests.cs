@@ -45,26 +45,26 @@ namespace GameOfTournamentsTests
             this.AuthenticationService.Set(new AuthenticationContext(true));
         }
         
-        protected void AuthenticateUser(params string[] roles)
-        {
-            var authenticationContext = new AuthenticationContext(true);
-            authenticationContext.Roles.AddRange(roles);
-            this.AuthenticationService.Set(authenticationContext);
-        }
+        // protected void AuthenticateUser(params string[] roles)
+        // {
+        //     var authenticationContext = new AuthenticationContext(true);
+        //     authenticationContext.Permissions.AddRange(roles);
+        //     this.AuthenticationService.Set(authenticationContext);
+        // }
         
         protected void AuthenticateUser(IAuthenticationContext authenticationContext)
         {
             this.AuthenticationService.Set(authenticationContext);
         }
 
-        protected async Task AssertAuditLogAsync(string action, int? userId, bool hasPermissions)
-        {
-            var auditLogs = await this.AuditLogger.GetAsync(this.auditLogGetOptions);
-            Assert.NotNull(auditLogs);
-            Assert.Contains(
-                auditLogs, 
-                log => log.Action == action && log.UserId == userId && log.HasPermissions == hasPermissions);
-        }
+        // protected async Task AssertAuditLogAsync(string action, int? userId, bool hasPermissions)
+        // {
+        //     var auditLogs = await this.AuditLogger.GetAsync(this.auditLogGetOptions);
+        //     Assert.NotNull(auditLogs);
+        //     Assert.Contains(
+        //         auditLogs, 
+        //         log => log.Action == action && log.UserId == userId && log.HasPermissions == hasPermissions);
+        // }
         
         protected static bool DeepEqual(object a, object b)
         {

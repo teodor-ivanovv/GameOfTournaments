@@ -1,6 +1,8 @@
 ﻿namespace GameOfTournaments.Services
 {
+    using System.Collections.Generic;
     using GameOfTournaments.Services.Infrastructure;
+    using GameOfTournaments.Shared;
 
     public interface IAuthenticationService
     {
@@ -10,6 +12,8 @@
 
         void Set(IAuthenticationContext context);
 
-        bool IsInRole(string role);
+        bool HasPermissions(PermissionScope scope, Permissions permissions);
+        
+        bool HasPermissions(IEnumerable<PermissionModel> permissionModels);
     }
 }

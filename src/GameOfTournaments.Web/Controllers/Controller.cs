@@ -66,7 +66,7 @@
                     Authenticated = true, 
                     ApplicationUser = httpContext?.User,
                     IpAddress = ipAddress?.ToString(),
-                    Roles = cachedUser.Roles,
+                    Permissions = cachedUser.Permissions,
                 });
     }
 }

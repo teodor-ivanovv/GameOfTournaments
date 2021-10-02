@@ -2,14 +2,16 @@
 {
     using System.Collections.Generic;
     using System.Security.Claims;
+    using GameOfTournaments.Data.Models;
+    using GameOfTournaments.Shared;
 
     public class AuthenticationContext : IAuthenticationContext
     {
-        private readonly List<string> _roles;
+        private readonly List<PermissionModel> _permissions;
 
         public AuthenticationContext()
         {
-            this._roles = new List<string>();
+            this._permissions = new List<PermissionModel>();
         }
 
         public AuthenticationContext(bool authenticated)
@@ -32,13 +34,13 @@
 
         public ClaimsPrincipal ApplicationUser { get; set; }
 
-        public List<string> Roles
+        public List<PermissionModel> Permissions
         {
-            get => this._roles;
+            get => this._permissions;
             init
             {
                 if (value is not null)
-                    this._roles = value;
+                    this._permissions = value;
             }
         }
     }

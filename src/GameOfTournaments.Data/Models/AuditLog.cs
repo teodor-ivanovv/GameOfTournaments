@@ -2,10 +2,13 @@
 {
     using System;
     using GameOfTournaments.Data.Infrastructure;
+    using GameOfTournaments.Shared;
 
     public class AuditLog : LogBase
     {
-        public string Action { get; set; }
+        public PermissionScope Scope { get; set; }
+
+        public Permissions Permissions { get; set; }
 
         public DateTimeOffset ActionTime { get; set; }
 

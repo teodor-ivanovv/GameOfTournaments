@@ -16,6 +16,7 @@
                 .AddScoped<ITournamentService, TournamentService>()
                 .AddScoped<ITagService, TagService>()
                 .AddScoped<IBetService, BetService>()
-                .AddScoped<INewsService, NewsService>();
+                .AddScoped<INewsService, NewsService>()
+                .AddScoped<IPermissionService, PermissionService>();
     }
 }

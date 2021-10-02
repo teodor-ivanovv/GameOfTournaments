@@ -25,11 +25,12 @@
             return this.CreateAsync(log);
         }
 
-        public AuditLog Construct(string action, DateTimeOffset actionTime, string message, bool hasPermissions)
+        public AuditLog Construct(PermissionScope scope, Permissions permissions, DateTimeOffset actionTime, string message, bool hasPermissions)
         {
             var auditLog = new AuditLog
             {
-                Action = action,
+                Scope = scope,
+                Permissions = permissions,
                 ActionTime = actionTime,
                 Message = message,
                 HasPermissions = hasPermissions,
@@ -40,31 +41,33 @@
             return auditLog;
         }
 
-        public AuditLog Construct<T>(string action, DateTimeOffset actionTime, string message, T entityId, bool hasPermissions)
+        public AuditLog Construct<T>(PermissionScope scope, Permissions permissions, DateTimeOffset actionTime, string message, T entityId, bool hasPermissions)
         {
-            var auditLog = this.Construct(action, actionTime, message, hasPermissions);
+            var auditLog = this.Construct(scope, permissions, actionTime, message, hasPermissions);
             auditLog.EntityId = entityId.ToString();
 
             return auditLog;
         }
 
-        public Action ConstructLogAction(bool inRole, string role)
+        public Action ConstructLogAction(bool hasPermissions, PermissionScope scope, Permissions permissions)
             => this.LogAsync(
                 this.Construct(
-                    role, 
+                    scope,
+                    permissions,
                     DateTimeOffset.UtcNow, 
                     string.Empty,
-                    inRole))
+                    hasPermissions))
                 .ExecuteNonBlocking;
         
-        public Action ConstructLogAction<T>(bool inRole, string role, T entityId)
+        public Action ConstructLogAction<T>(bool hasPermissions, PermissionScope scope, Permissions permissions, T entityId)
             => this.LogAsync(
                     this.Construct(
-                        role, 
+                        scope,
+                        permissions,
                         DateTimeOffset.UtcNow, 
                         string.Empty,
                         entityId,
-                        inRole))
+                        hasPermissions))
                 .ExecuteNonBlocking;
     }
 }

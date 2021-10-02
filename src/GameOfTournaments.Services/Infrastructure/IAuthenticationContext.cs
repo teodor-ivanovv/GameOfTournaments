@@ -2,6 +2,8 @@
 {
     using System.Collections.Generic;
     using System.Security.Claims;
+    using GameOfTournaments.Data.Models;
+    using GameOfTournaments.Shared;
 
     public interface IAuthenticationContext
     {
@@ -13,7 +15,7 @@
         
         ClaimsPrincipal ApplicationUser { get; set; }
         
-        List<string> Roles { get; }
+        List<PermissionModel> Permissions { get; }
 
         // Logins, time
     }

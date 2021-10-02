@@ -3,17 +3,18 @@
     using System;
     using System.Threading.Tasks;
     using GameOfTournaments.Data.Models;
+    using GameOfTournaments.Shared;
 
     public interface IAuditLogger : IEfCoreService<AuditLog>
     {
         Task LogAsync(AuditLog log);
 
-        AuditLog Construct(string action, DateTimeOffset actionTime, string message, bool hasPermissions);
+        AuditLog Construct(PermissionScope scope, Permissions permissions, DateTimeOffset actionTime, string message, bool hasPermissions);
         
-        AuditLog Construct<T>(string action, DateTimeOffset actionTime, string message, T entityId ,bool hasPermissions);
+        AuditLog Construct<T>(PermissionScope scope, Permissions permissions, DateTimeOffset actionTime, string message, T entityId, bool hasPermissions);
 
-        Action ConstructLogAction(bool inRole, string role);
+        Action ConstructLogAction(bool hasPermissions, PermissionScope scope, Permissions permissions);
 
-        Action ConstructLogAction<T>(bool inRole, string role, T entityId);
+        Action ConstructLogAction<T>(bool hasPermissions, PermissionScope scope, Permissions permissions, T entityId);
     }
 }

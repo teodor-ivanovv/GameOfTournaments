@@ -79,7 +79,7 @@
             if (!this.AuthenticationService.Authenticated)
                 return this.Unauthorized();
 
-            var operationResult = await this.gameService.DeleteAsync(new object[] { id }, cancellationToken);
+            var operationResult = await this.gameService.SoftDeleteAsync(new object[] { id }, cancellationToken);
             var responseModelOperationResult = operationResult.ChangeObjectType(GameFactory.DeleteGameResponseModel());
 
             return this.FromOperationResult(responseModelOperationResult);

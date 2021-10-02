@@ -13,8 +13,9 @@
 
     public class GameService : EfCoreService<Game>, IGameService
     {
-        private readonly IAuthenticationService _authenticationService;
+        private const PermissionScope Scope = PermissionScope.Game;
 
+        private readonly IAuthenticationService _authenticationService;
         private readonly IAuditLogger _auditLogger;
 
         public GameService(
@@ -32,8 +33,10 @@
             var operationResult = new OperationResult<Game>();
             operationResult.ValidateNotNull(entity, nameof(GameService), nameof(this.CreateAsync), nameof(entity));
 
-            var inRole = this._authenticationService.IsInRole(Permissions.CanCreateGame);
-            operationResult.ValidateInRole(inRole, Permissions.CanCreateGame, this._auditLogger.ConstructLogAction(inRole, Permissions.CanCreateGame));
+            var hasPermissions = this._authenticationService.HasPermissions(Scope, Permissions.Create);
+            operationResult.ValidatePermissions(
+                hasPermissions,
+                this._auditLogger.ConstructLogAction(hasPermissions, Scope, Permissions.Create));
             
             if (!operationResult.Success)
                 return Task.FromResult<IOperationResult<Game>>(operationResult);
@@ -46,8 +49,10 @@
             var operationResult = new OperationResult<IEnumerable<Game>>();
             operationResult.ValidateNotNull(entities, nameof(GameService), nameof(this.CreateManyAsync), nameof(entities));
 
-            var inRole = this._authenticationService.IsInRole(Permissions.CanCreateGame);
-            operationResult.ValidateInRole(inRole, Permissions.CanCreateGame, this._auditLogger.ConstructLogAction(inRole, Permissions.CanCreateGame));
+            var hasPermissions = this._authenticationService.HasPermissions(Scope, Permissions.Create);
+            operationResult.ValidatePermissions(
+                hasPermissions,
+                this._auditLogger.ConstructLogAction(hasPermissions, Scope, Permissions.Create));
             
             if (!operationResult.Success)
                 return Task.FromResult<IOperationResult<IEnumerable<Game>>>(operationResult);
@@ -60,8 +65,10 @@
             var operationResult = new OperationResult<Game>();
             operationResult.ValidateNotNull(entity, nameof(GameService), nameof(this.UpdateAsync), nameof(entity));
 
-            var inRole = this._authenticationService.IsInRole(Permissions.CanUpdateGame);
-            operationResult.ValidateInRole(inRole, Permissions.CanUpdateGame, this._auditLogger.ConstructLogAction(inRole, Permissions.CanUpdateGame, entity.Id));
+            var hasPermissions = this._authenticationService.HasPermissions(Scope, Permissions.Update);
+            operationResult.ValidatePermissions(
+                hasPermissions,
+                this._auditLogger.ConstructLogAction(hasPermissions, Scope, Permissions.Update, entity.Id));
             
             if (!operationResult.Success)
                 return Task.FromResult<IOperationResult<Game>>(operationResult);
@@ -69,21 +76,20 @@
             return base.UpdateAsync(identifiers, entity, cancellationToken);
         }
 
-        public override Task<IOperationResult<Game>> DeleteAsync(IEnumerable<object> identifiers, CancellationToken cancellationToken = default)
+        public override Task<IOperationResult<Game>> SoftDeleteAsync(IEnumerable<object> identifiers, CancellationToken cancellationToken = default)
         {
             var operationResult = new OperationResult<Game>();
             var enumerated = identifiers?.ToList();
             
-            var inRole = this._authenticationService.IsInRole(Permissions.CanDeleteGame);
-            operationResult.ValidateInRole(
-                inRole,
-                Permissions.CanDeleteGame,
-                this._auditLogger.ConstructLogAction(inRole, Permissions.CanDeleteGame, string.Join(", ", enumerated ?? new List<object>())));
+           var hasPermissions = this._authenticationService.HasPermissions(Scope, Permissions.SoftDelete);
+           operationResult.ValidatePermissions(
+               hasPermissions,
+               this._auditLogger.ConstructLogAction(hasPermissions, Scope, Permissions.SoftDelete, string.Join(", ", enumerated ?? new List<object>())));
             
             if (!operationResult.Success)
                 return Task.FromResult<IOperationResult<Game>>(operationResult);
 
-            return base.DeleteAsync(enumerated, cancellationToken);
+            return base.SoftDeleteAsync(enumerated, cancellationToken);
         }
     }
 }

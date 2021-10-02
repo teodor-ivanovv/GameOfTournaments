@@ -251,7 +251,7 @@
         }
 
         /// <inheritdoc />
-        public virtual async Task<IOperationResult<TEntity>> DeleteAsync(IEnumerable<object> identifiers, CancellationToken cancellationToken = default)
+        public virtual async Task<IOperationResult<TEntity>> SoftDeleteAsync(IEnumerable<object> identifiers, CancellationToken cancellationToken = default)
         {
             var operationResult = new OperationResult<TEntity>();
             var enumerated = identifiers as object[] ?? identifiers.ToArray();
@@ -270,7 +270,7 @@
                 affectedRows,
                 expected: 1,
                 nameof(EfCoreService<TEntity>),
-                nameof(this.DeleteAsync), 
+                nameof(this.SoftDeleteAsync), 
                 typeof(TEntity).FullName);
 
             operationResult.AffectedRows = affectedRows;
@@ -280,7 +280,7 @@
         }
 
         /// <inheritdoc />
-        public async Task<int> DeleteAsync(Expression<Func<TEntity, bool>> filterExpression, CancellationToken cancellationToken = default)
+        public async Task<int> SoftDeleteAsync(Expression<Func<TEntity, bool>> filterExpression, CancellationToken cancellationToken = default)
         {
             if (filterExpression == null)
                 throw new ArgumentNullException(nameof(filterExpression));
@@ -295,7 +295,7 @@
                 affectedRows, 
                 expected: entities.Count, 
                 nameof(EfCoreService<TEntity>),
-                nameof(this.DeleteAsync), 
+                nameof(this.SoftDeleteAsync), 
                 typeof(TEntity).FullName);
 
             return affectedRows;

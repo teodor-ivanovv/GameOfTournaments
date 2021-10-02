@@ -1,7 +1,6 @@
 namespace GameOfTournaments.Web
 {
     using GameOfTournaments.Data.Models;
-    using GameOfTournaments.Seeder;
     using GameOfTournaments.Services;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -14,7 +13,10 @@ namespace GameOfTournaments.Web
 
     public class Startup
     {
-        public Startup(IConfiguration configuration) { this.Configuration = configuration; }
+        public Startup(IConfiguration configuration)
+        {
+            this.Configuration = configuration;
+        }
 
         public IConfiguration Configuration { get; }
 
@@ -24,13 +26,11 @@ namespace GameOfTournaments.Web
             
             services.AddControllers();
 
-            services
-                .AddIdentity()
+            services.AddIdentity()
                 .RegisterDbContextFactory(applicationSettings)
                 .RegisterDbContext(applicationSettings)
                 .AddJwtAuthentication(applicationSettings)
-                .AddApplicationServices()
-                .RegisterSeeders();
+                .AddApplicationServices();
             
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "GameOfTournaments.Web", Version = "v1" }); });
         }
@@ -39,7 +39,6 @@ namespace GameOfTournaments.Web
             IApplicationBuilder app, 
             IWebHostEnvironment env,
             ILogger logger,
-            ISeedManager seedManager,
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager)
         {
@@ -55,8 +54,8 @@ namespace GameOfTournaments.Web
             app.UseRouting();
             app.UseAuthentication()
                 .UseAuthorization();
-            app.ApplyMigrations()
-                .SeedDefaultData(logger, seedManager, userManager, roleManager);
+
+            app.ApplyMigrations();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }
