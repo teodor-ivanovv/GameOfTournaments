@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
     using GameOfTournaments.Data.Infrastructure;
     using GameOfTournaments.Services.Infrastructure;
+    using GameOfTournaments.Shared;
     using Microsoft.EntityFrameworkCore;
 
     public interface IService<TEntity>
@@ -72,26 +73,17 @@
         /// <summary>
         /// Updates the given <paramref name="entity"/> in the registered database provider. If primary keys have been changed this operation will throw a <see cref="DbUpdateConcurrencyException"/>.
         /// </summary>
+        /// <param name="identifiers"></param>
         /// <param name="entity">The entity to update.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken" /> used to propagate notifications that the operation should be cancelled.</param>
         /// <exception cref="Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException">Thrown when primary keys have been changed.</exception>
         /// <returns>A <see cref="Task{TResult}"/> of <see cref="IOperationResult{T}"/> <see cref="TEntity"/> representing the updated entity.</returns>
         Task<IOperationResult<TEntity>> UpdateAsync(IEnumerable<object> identifiers, TEntity entity, CancellationToken cancellationToken = default);
 
-        // /// <summary>
-        // /// Deletes an entity of type <see cref="TEntity"/> by the given <see cref="IEnumerable{T}"/> of <see cref="object"/> identifiers.
-        // /// </summary>
-        // /// <param name="identifiers">The identifiers of the entity to be deleted.</param>
-        // /// <param name="cancellationToken">The <see cref="CancellationToken" /> used to propagate notifications that the operation should be cancelled.</param>
-        // /// <returns>A <see cref="Task{TResult}"/> of <see cref="IOperationResult{T}"/> of the <see cref="TEntity"/> representing the deleted entity.</returns>
-        // Task<IOperationResult<TEntity>> SoftDeleteAsync(IEnumerable<object> identifiers, CancellationToken cancellationToken = default);
-        //
-        // /// <summary>
-        // /// Deletes all entities of type <see cref="TEntity"/> by the given <paramref name="filterExpression"/>.
-        // /// </summary>
-        // /// <param name="filterExpression">The filter expression used to filter entities to delete.</param>
-        // /// <param name="cancellationToken">The <see cref="CancellationToken" /> used to propagate notifications that the operation should be cancelled.</param>
-        // /// <returns>A <see cref="Task{TResult}"/> of <see cref="int"/> representing the affected rows of the delete operation.</returns>
-        // Task<int> SoftDeleteAsync(Expression<Func<TEntity, bool>> filterExpression, CancellationToken cancellationToken = default);
+        IOperationResult<TModel> ValidatePermissions<TModel>(TModel model, PermissionScope scope, Permissions permissions) where TModel : class;
+
+        IOperationResult<TModel> ValidatePermissions<TKey, TModel>(TModel model, PermissionScope scope, Permissions permissions, TKey entityId) where TModel : class;
+
+        IOperationResult<TModel> ValidatePermissions<TModel>(TModel model, PermissionScope scope, Permissions permissions, object[] identifiers) where TModel : class;
     }
 }

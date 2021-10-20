@@ -2,7 +2,7 @@
 {
     using GameOfTournaments.Data.Models;
 
-    public interface IGameService : IEfCoreService<Game>
+    public interface IGameService : IEfCoreDeletableService<Game>
     {
     }
 }
