@@ -26,6 +26,8 @@
         
         public int? MinimumCompetitors { get; set; }
 
+        public TournamentStatus Status { get; set; }
+
         public DateTimeOffset Start { get; set; }
         
         public DateTimeOffset End { get; set; }

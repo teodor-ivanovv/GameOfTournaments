@@ -5,7 +5,7 @@
     using GameOfTournaments.Data.Infrastructure;
     using static Shared.GameConstants;
 
-    public class Game : IIdentifiable<int>, IAuditInformation
+    public class Game : IIdentifiable<int>, IAuditInformation, IDeletable
     {
         public int Id { get; set; }
 
@@ -26,5 +26,9 @@
         public DateTimeOffset? LastModified { get; set; }
 
         public int LastModifiedBy { get; set; }
+
+        public bool Deleted { get; set; }
+
+        public DateTimeOffset? Time { get; set; }
     }
 }
