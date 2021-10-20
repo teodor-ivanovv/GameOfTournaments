@@ -243,6 +243,9 @@ namespace GameOfTournaments.Data.Migrations
                     b.Property<int>("CreatedBy")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(2000)
@@ -258,6 +261,9 @@ namespace GameOfTournaments.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<DateTimeOffset?>("Time")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -442,6 +448,9 @@ namespace GameOfTournaments.Data.Migrations
 
                     b.Property<DateTimeOffset>("Start")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("ThirdPlacePrize")
                         .HasColumnType("numeric");

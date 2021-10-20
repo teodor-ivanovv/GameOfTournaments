@@ -4,25 +4,30 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Net.Mime;
     using System.Threading;
     using System.Threading.Tasks;
     using GameOfTournaments.Data;
     using GameOfTournaments.Data.Infrastructure;
     using GameOfTournaments.Services.Infrastructure;
+    using GameOfTournaments.Shared;
     using Microsoft.EntityFrameworkCore;
     using static Data.Infrastructure.DatabaseIntegrity;
     
     public abstract class EfCoreService<TEntity> : IEfCoreService<TEntity> where TEntity : class
     {
         private readonly IAuthenticationService _authenticationService;
+        private readonly IAuditLogger _auditLogger;
 
         protected IDbContextFactory<ApplicationDbContext> ContextFactory { get; private set; }
 
-        protected EfCoreService(IDbContextFactory<ApplicationDbContext> contextFactory, IAuthenticationService authenticationService)
+        protected EfCoreService(
+            IDbContextFactory<ApplicationDbContext> contextFactory,
+            IAuthenticationService authenticationService,
+            IAuditLogger auditLogger)
         {
             this.ContextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
             this._authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
+            this._auditLogger = auditLogger ?? throw new ArgumentNullException(nameof(auditLogger));
         }
         
         /// <inheritdoc />
@@ -250,55 +255,44 @@
             return operationResult;
         }
 
-        /// <inheritdoc />
-        public virtual async Task<IOperationResult<TEntity>> SoftDeleteAsync(IEnumerable<object> identifiers, CancellationToken cancellationToken = default)
+        public IOperationResult<TModel> ValidatePermissions<TModel>(TModel model, PermissionScope scope, Permissions permissions) where TModel : class
         {
-            var operationResult = new OperationResult<TEntity>();
-            var enumerated = identifiers as object[] ?? identifiers.ToArray();
-            if (!enumerated.Any())
-                return new NotExistingOperationResult<TEntity>(typeof(TEntity).Name);
+            var operationResult = new OperationResult<TModel>();
+            operationResult.ValidateNotNull(model, nameof(EfCoreService<TModel>), nameof(this.ValidatePermissions), nameof(model));
 
-            var entity = await this.GetAsync(enumerated.ToArray(), cancellationToken);
-            if (entity == null)
-                return new NotExistingOperationResult<TEntity>(typeof(TEntity).Name);
-
-            await using var dbContext = this.ContextFactory.CreateDbContext();
-            dbContext.Remove(entity);
-            var affectedRows = await dbContext.SaveChangesAsync(cancellationToken);
-
-            ValidateAffectedRows(
-                affectedRows,
-                expected: 1,
-                nameof(EfCoreService<TEntity>),
-                nameof(this.SoftDeleteAsync), 
-                typeof(TEntity).FullName);
-
-            operationResult.AffectedRows = affectedRows;
-            operationResult.Object = entity;
-
+            var hasPermissions = this._authenticationService.HasPermissions(scope, permissions);
+            operationResult.ValidatePermissions(
+                hasPermissions,
+                this._auditLogger.ConstructLogAction(hasPermissions, scope, permissions));
+            
+            return operationResult;
+        }
+        
+        public IOperationResult<TModel> ValidatePermissions<TKey, TModel>(TModel model, PermissionScope scope, Permissions permissions, TKey entityId) where TModel : class
+        {
+            var operationResult = new OperationResult<TModel>();
+            operationResult.ValidateNotNull(model, nameof(EfCoreService<TModel>), nameof(this.ValidatePermissions), nameof(model));
+            
+            var hasPermissions = this._authenticationService.HasPermissions(scope, permissions);
+            operationResult.ValidatePermissions(
+                hasPermissions,
+                this._auditLogger.ConstructLogAction(hasPermissions, scope, permissions, entityId));
+           
             return operationResult;
         }
 
-        /// <inheritdoc />
-        public async Task<int> SoftDeleteAsync(Expression<Func<TEntity, bool>> filterExpression, CancellationToken cancellationToken = default)
+        public IOperationResult<TModel> ValidatePermissions<TModel>(TModel model, PermissionScope scope, Permissions permissions, object[] identifiers)
+            where TModel : class
         {
-            if (filterExpression == null)
-                throw new ArgumentNullException(nameof(filterExpression));
+            var operationResult = new OperationResult<TModel>();
+            operationResult.ValidateNotNull(model, nameof(EfCoreService<TModel>), nameof(this.ValidatePermissions), nameof(model));
 
-            await using var dbContext = this.ContextFactory.CreateDbContext();
-            var entities = await this.GetAsync(new GetOptions<TEntity, string> { FilterExpression = filterExpression, }, cancellationToken);
+            var hasPermissions = this._authenticationService.HasPermissions(scope, permissions);
+            operationResult.ValidatePermissions(
+                hasPermissions,
+                this._auditLogger.ConstructLogAction(hasPermissions, scope, permissions, string.Join(", ", identifiers ?? Array.Empty<object>())));
 
-            dbContext.RemoveRange(entities);
-            var affectedRows = await dbContext.SaveChangesAsync(cancellationToken);
-
-            ValidateAffectedRows(
-                affectedRows, 
-                expected: entities.Count, 
-                nameof(EfCoreService<TEntity>),
-                nameof(this.SoftDeleteAsync), 
-                typeof(TEntity).FullName);
-
-            return affectedRows;
+            return operationResult;
         }
 
         private void ApplyAuditInformation(TEntity entity)

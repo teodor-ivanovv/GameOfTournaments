@@ -6,8 +6,8 @@
 
     public class PermissionService :EfCoreService<Permission>,  IPermissionService
     {
-        public PermissionService(IDbContextFactory<ApplicationDbContext> contextFactory, IAuthenticationService authenticationService)
-            : base(contextFactory, authenticationService)
+        public PermissionService(IDbContextFactory<ApplicationDbContext> contextFactory, IAuthenticationService authenticationService, IAuditLogger auditLogger)
+            : base(contextFactory, authenticationService, auditLogger)
         {
         }
     }

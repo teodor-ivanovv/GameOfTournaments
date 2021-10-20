@@ -12,8 +12,8 @@
     {
         private readonly IAuthenticationService _authenticationService;
 
-        public AuditLogger(IDbContextFactory<ApplicationDbContext> contextFactory, IAuthenticationService authenticationService)
-            : base(contextFactory, authenticationService)
+        public AuditLogger(IDbContextFactory<ApplicationDbContext> contextFactory, IAuthenticationService authenticationService, IAuditLogger auditLogger)
+            : base(contextFactory, authenticationService, auditLogger)
         {
             this._authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
         }
