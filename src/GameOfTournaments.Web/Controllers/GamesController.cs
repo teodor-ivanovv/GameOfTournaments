@@ -15,7 +15,7 @@
 
     public class GamesController : Controller
     {
-        private readonly IGameService gameService;
+        private readonly IGameService _gameService;
 
         public GamesController(
             IHttpContextAccessor httpContextAccessor, 
@@ -24,7 +24,7 @@
             IApplicationUserCache applicationUserCache)
             : base(httpContextAccessor, authenticationService, applicationUserCache)
         {
-            this.gameService = gameService ?? throw new ArgumentNullException(nameof(gameService));
+            this._gameService = gameService ?? throw new ArgumentNullException(nameof(gameService));
         }
 
         [HttpGet]
@@ -33,7 +33,7 @@
             if (!this.AuthenticationService.Authenticated)
                 return this.Unauthorized();
             
-            var games = await this.gameService.GetAsync(
+            var games = await this._gameService.GetAsync(
                 new GetOptions<Game, string, GameViewModel>
                 {
                     Projection = new ProjectionOptions<Game, GameViewModel>(
@@ -52,7 +52,7 @@
             if (gameViewModel == null)
                 return this.BadRequest(nameof(gameViewModel));
 
-            var operationResult = await this.gameService.CreateAsync(gameViewModel.ToGame(), cancellationToken);
+            var operationResult = await this._gameService.CreateAsync(gameViewModel.ToGame(), cancellationToken);
             var responseModelOperationResult = operationResult.ChangeObjectType(GameFactory.CreateGameResponseModel(operationResult.Object));
 
             return this.FromOperationResult(responseModelOperationResult);
@@ -67,7 +67,7 @@
             if (updateGameModel == null)
                 return this.BadRequest(nameof(updateGameModel));
 
-            var operationResult = await this.gameService.UpdateAsync(new object[] { updateGameModel.Id }, updateGameModel.ToGame(), cancellationToken);
+            var operationResult = await this._gameService.UpdateAsync(new object[] { updateGameModel.Id }, updateGameModel.ToGame(), cancellationToken);
             var responseModelOperationResult = operationResult.ChangeObjectType(GameFactory.UpdateGameResponseModel(operationResult.Object));
 
             return this.FromOperationResult(responseModelOperationResult);
@@ -79,7 +79,7 @@
             if (!this.AuthenticationService.Authenticated)
                 return this.Unauthorized();
 
-            var operationResult = await this.gameService.SoftDeleteAsync(new object[] { id }, cancellationToken);
+            var operationResult = await this._gameService.SoftDeleteAsync(new object[] { id }, cancellationToken);
             var responseModelOperationResult = operationResult.ChangeObjectType(GameFactory.DeleteGameResponseModel());
 
             return this.FromOperationResult(responseModelOperationResult);

@@ -9,6 +9,6 @@
         Create = 1 << 1,
         Update = 1 << 2,
         SoftDelete = 1 << 3,
-        HardDelete = 1 << 4,
+        // HardDelete = 1 << 4,
     }
 }
