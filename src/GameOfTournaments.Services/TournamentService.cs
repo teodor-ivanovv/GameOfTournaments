@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using System.Threading;
     using System.Threading.Tasks;
     using GameOfTournaments.Data;
@@ -30,8 +31,27 @@
             this._authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
             this._applicationUserAccountService = applicationUserAccountService ?? throw new ArgumentNullException(nameof(applicationUserAccountService));
         }
-        
-        // TODO: Validate tournaments per day rate limit
+
+        public override Task<List<TProjection>> GetAsync<TSortKey, TProjection>(IGetOptions<Tournament, TSortKey, TProjection> getOptions, CancellationToken cancellationToken = default)
+        {
+            // Apply public tournaments filter
+            ApplyPublicFilter(getOptions);
+            return base.GetAsync(getOptions, cancellationToken);
+        }
+
+        public override Task<List<Tournament>> GetAsync<TSortKey>(IGetOptions<Tournament, TSortKey> getOptions, CancellationToken cancellationToken = default)
+        {
+            // Apply public tournaments filter
+            ApplyPublicFilter(getOptions);
+            return base.GetAsync(getOptions, cancellationToken);
+        }
+
+        public override Task<List<Tournament>> GetAsync(IGetOptions<Tournament> getOptions, CancellationToken cancellationToken = default)
+        {
+            // Apply public tournaments filter
+            ApplyPublicFilter(getOptions);
+            return base.GetAsync(getOptions, cancellationToken);
+        }
 
         public override async Task<IOperationResult<Tournament>> CreateAsync(Tournament entity, CancellationToken cancellationToken = default)
         {
@@ -68,7 +88,7 @@
         private async Task<OperationResult<Tournament>> ValidateUserCanCreateTournamentAsync(CancellationToken cancellationToken)
         {
             var createdTournaments = await this.CountAsync(
-                t => t.CreatedBy == this._authenticationService.Context.Id && t.Created.Date == DateTime.UtcNow.Date);
+                t => t.CreatedBy == this._authenticationService.Context.Id && t.Created.Equals(DateTime.UtcNow.Date));
 
             var tournamentsPerDay = await this._applicationUserAccountService.GetAsync(
                 new GetOptions<ApplicationUserAccount, int, int>
@@ -84,6 +104,13 @@
                 operationResult.AddErrorMessage($"You cannot create more tournaments for today. Currently you can create up to {tournamentsPerDayCount} tournaments. Upgrade your subscription in order to crete more tournaments.");
 
             return operationResult;
+        }
+        
+        private static void ApplyPublicFilter(IGetOptions<Tournament> getOptions)
+        {
+            Expression<Func<Tournament, bool>> publicFilter = t => t.Public;
+            var finalFilter = ExpressionBuilder.JoinExpressions(getOptions.FilterExpression, publicFilter);
+            getOptions.FilterExpression = finalFilter;
         }
     }
 }

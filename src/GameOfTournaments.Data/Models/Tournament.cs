@@ -6,6 +6,8 @@
 
     public class Tournament : IIdentifiable<int>, IAuditInformation
     {
+        // TODO: Add game
+        
         public int Id { get; set; }
 
         public string Name { get; set; }

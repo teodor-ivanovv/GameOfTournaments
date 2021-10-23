@@ -103,7 +103,7 @@
         }
 
         /// <inheritdoc />
-        public async Task<List<TEntity>> GetAsync(IGetOptions<TEntity> getOptions, CancellationToken cancellationToken = default)
+        public virtual async Task<List<TEntity>> GetAsync(IGetOptions<TEntity> getOptions, CancellationToken cancellationToken = default)
         {
             if (getOptions == null)
                 throw new ArgumentNullException(nameof(getOptions));
@@ -117,7 +117,7 @@
             return await queryable.ToListAsync(cancellationToken: cancellationToken);
         }
 
-        public async Task<List<TEntity>> GetAsync<TSortKey>(IGetOptions<TEntity, TSortKey> getOptions, CancellationToken cancellationToken = default)
+        public virtual async Task<List<TEntity>> GetAsync<TSortKey>(IGetOptions<TEntity, TSortKey> getOptions, CancellationToken cancellationToken = default)
         {
             if (getOptions == null)
                 throw new ArgumentNullException(nameof(getOptions));
@@ -150,7 +150,7 @@
             return await queryable.ToListAsync(cancellationToken: cancellationToken);
         }
 
-        public async Task<List<TProjection>> GetAsync<TSortKey, TProjection>(
+        public virtual async Task<List<TProjection>> GetAsync<TSortKey, TProjection>(
             IGetOptions<TEntity, TSortKey, TProjection> getOptions, 
             CancellationToken cancellationToken = default)
         {
@@ -190,29 +190,29 @@
             return await queryable.Select(getOptions.Projection.Selector).ToListAsync(cancellationToken: cancellationToken);
         }
 
-        protected async Task<List<TEntity>> FilterAsNoTrackingAsync(Expression<Func<TEntity, bool>> expressionFilter)
-        {
-            if (expressionFilter is null)
-                return default;
+        // protected async Task<List<TEntity>> FilterAsNoTrackingAsync(Expression<Func<TEntity, bool>> expressionFilter)
+        // {
+        //     if (expressionFilter is null)
+        //         return default;
+        //
+        //     await using var dbContext = this.ContextFactory.CreateDbContext();
+        //     return await dbContext.Set<TEntity>()
+        //         .Where(expressionFilter)
+        //         .ToListAsync();
+        // }
 
-            await using var dbContext = this.ContextFactory.CreateDbContext();
-            return await dbContext.Set<TEntity>()
-                .Where(expressionFilter)
-                .ToListAsync();
-        }
-
-        protected static async Task<List<TEntity>> FilterTrackingAsync(Expression<Func<TEntity, bool>> expressionFilter, ApplicationDbContext dbContext)
-        {
-            if (expressionFilter is null)
-                return default;
-
-            if (dbContext == null)
-                throw new ArgumentNullException(nameof(dbContext));
-
-            return await dbContext.Set<TEntity>()
-                .Where(expressionFilter)
-                .ToListAsync();
-        }
+        // protected static async Task<List<TEntity>> FilterTrackingAsync(Expression<Func<TEntity, bool>> expressionFilter, ApplicationDbContext dbContext)
+        // {
+        //     if (expressionFilter is null)
+        //         return default;
+        //
+        //     if (dbContext == null)
+        //         throw new ArgumentNullException(nameof(dbContext));
+        //
+        //     return await dbContext.Set<TEntity>()
+        //         .Where(expressionFilter)
+        //         .ToListAsync();
+        // }
 
         /// <inheritdoc />
         public async Task<int> CountAsync(CancellationToken cancellationToken = default)
