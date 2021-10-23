@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <RootNamespace>GameOfTournaments.Data.Factories</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\GameOfTournaments.Data\GameOfTournaments.Data.csproj" />
+    </ItemGroup>
+
+</Project>

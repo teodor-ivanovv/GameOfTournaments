@@ -1,4 +1,4 @@
-﻿namespace GameOfTournaments.Web.Models.Game
+﻿namespace GameOfTournaments.Data.Factories.Models.Game
 {
     using System;
 

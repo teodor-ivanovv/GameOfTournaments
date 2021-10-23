@@ -1,4 +1,4 @@
-﻿namespace GameOfTournaments.Web.Models
+﻿namespace GameOfTournaments.Data.Factories.Models
 {
     using System.ComponentModel.DataAnnotations;
 
