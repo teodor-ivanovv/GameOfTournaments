@@ -33,6 +33,9 @@
         
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            // TODO: Indexes
+            // TODO: Move this to configurations
+            
             base.OnModelCreating(builder);
             
             builder.Entity<ApplicationUser>()
