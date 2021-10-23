@@ -1,15 +1,15 @@
-﻿namespace GameOfTournaments.Web.Factories
+﻿namespace GameOfTournaments.Data.Factories
 {
-    using Ardalis.GuardClauses;
+    using GameOfTournaments.Data.Factories.Models;
     using GameOfTournaments.Data.Models;
-    using GameOfTournaments.Web.Models;
 
     public static class ApplicationUserFactory
     {
         public static ApplicationUser Create(RegisterUserModel registerUserModel)
         {
-            Guard.Against.Null(registerUserModel, nameof(registerUserModel));
-
+            if (registerUserModel == null)
+                return default;
+            
             return new ApplicationUser
             {
                 UserName = registerUserModel.Username,

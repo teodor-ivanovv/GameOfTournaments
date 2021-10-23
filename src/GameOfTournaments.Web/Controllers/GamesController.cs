@@ -4,12 +4,12 @@
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using GameOfTournaments.Data.Factories.Models.Game;
     using GameOfTournaments.Data.Models;
     using GameOfTournaments.Services;
     using GameOfTournaments.Services.Infrastructure;
     using GameOfTournaments.Web.Cache.ApplicationUsers;
     using GameOfTournaments.Web.Factories;
-    using GameOfTournaments.Web.Models.Game;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
 

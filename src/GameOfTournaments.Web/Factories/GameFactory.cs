@@ -1,7 +1,7 @@
 ﻿namespace GameOfTournaments.Web.Factories
 {
+    using GameOfTournaments.Data.Factories.Models.Game;
     using GameOfTournaments.Data.Models;
-    using GameOfTournaments.Web.Models.Game;
 
     public static class GameFactory
     {

@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\GameOfTournaments.Data.Shared\GameOfTournaments.Data.Shared.csproj" />
       <ProjectReference Include="..\GameOfTournaments.Data\GameOfTournaments.Data.csproj" />
     </ItemGroup>
 

@@ -3,8 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Ardalis.GuardClauses;
+    using GameOfTournaments.Data.Factories.Models;
     using GameOfTournaments.Data.Infrastructure;
     using GameOfTournaments.Data.Models;
     using GameOfTournaments.Services;
@@ -12,7 +14,6 @@
     using GameOfTournaments.Shared;
     using GameOfTournaments.Web.Cache.ApplicationUsers;
     using GameOfTournaments.Web.Factories;
-    using GameOfTournaments.Web.Models;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
@@ -22,6 +23,8 @@
     public class UsersController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IApplicationUserService _applicationUserService;
+        private readonly IApplicationUserAccountService _applicationUserAccountService;
         private readonly IJwtService _jwtService;
         private readonly IApplicationUserCache _applicationUserCache;
         private readonly IPermissionService _permissionService;
@@ -30,6 +33,8 @@
         public UsersController(
             IHttpContextAccessor httpContextAccessor, 
             IAuthenticationService authenticationService,
+            IApplicationUserService applicationUserService,
+            IApplicationUserAccountService applicationUserAccountService,
             UserManager<ApplicationUser> userManager, 
             IJwtService jwtService,
             IApplicationUserCache applicationUserCache,
@@ -37,6 +42,8 @@
             IOptions<ApplicationSettings> options)
             : base(httpContextAccessor, authenticationService, applicationUserCache)
         {
+            this._applicationUserService = applicationUserService;
+            this._applicationUserAccountService = applicationUserAccountService;
             this._userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             this._jwtService = jwtService ?? throw new ArgumentNullException(nameof(jwtService));
             this._applicationUserCache = applicationUserCache ?? throw new ArgumentNullException(nameof(applicationUserCache));
@@ -47,8 +54,6 @@
         }
         
         // TODO: Add audit logging.
-        // TODO: Move user manager related logic to authentication service.
-
         [HttpPost]
         [AllowAnonymous]
         [Route(nameof(Register))]
@@ -56,22 +61,17 @@
         {
             var operationResult = new OperationResult();
             operationResult.ValidateNotNull(registerUserModel, nameof(UsersController), nameof(this.Register), nameof(registerUserModel));
-
             if (!operationResult.Success)
                 return this.BadRequest(operationResult);
             
-            var user = ApplicationUserFactory.Create(registerUserModel);
-            operationResult.ValidateNotNull(user, nameof(UsersController), nameof(this.Register), nameof(user));
+            var createApplicationUserOperationResult = await this._applicationUserService.CreateAsync(registerUserModel);
+            if (!createApplicationUserOperationResult.Success)
+                return this.BadRequest(createApplicationUserOperationResult);
 
-            if (!operationResult.Success)
-                return this.BadRequest(operationResult);
-            
-            var result = await this._userManager.CreateAsync(user, registerUserModel.Password);
-            if (!result.Succeeded)
-            {
-                result.Errors.Select(e => operationResult.AddErrorMessage($"{e.Code} - {e.Description}"));
-                return this.BadRequest(operationResult);
-            }
+            var createApplicationUserAccountOperationResult = await this._applicationUserAccountService.CreateAsync(
+                new ApplicationUserAccount { ApplicationUserId = createApplicationUserOperationResult.Object.Id, CreateTournamentsPerDay = 10, });
+            if (!createApplicationUserAccountOperationResult.Success)
+                return this.BadRequest(createApplicationUserAccountOperationResult);
 
             return this.Ok();
         }

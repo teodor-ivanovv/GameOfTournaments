@@ -5,7 +5,7 @@
     using GameOfTournaments.Data.Models;
     using GameOfTournaments.Shared;
 
-    public interface IAuditLogger : IEfCoreService<AuditLog>
+    public interface IAuditLogger
     {
         Task LogAsync(AuditLog log);
 

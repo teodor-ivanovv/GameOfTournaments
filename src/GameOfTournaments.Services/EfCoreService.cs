@@ -223,6 +223,14 @@
                 .CountAsync(cancellationToken: cancellationToken);
         }
 
+        public async Task<int> CountAsync(Expression<Func<TEntity, bool>> filterExpression)
+        {
+            await using var dbContext = this.ContextFactory.CreateDbContext();
+
+            return await dbContext.Set<TEntity>()
+                .CountAsync(filterExpression);
+        }
+
         /// <inheritdoc />
         public virtual async Task<IOperationResult<TEntity>> UpdateAsync(IEnumerable<object> identifiers, TEntity entity, CancellationToken cancellationToken = default)
         {

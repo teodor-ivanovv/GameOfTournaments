@@ -69,6 +69,8 @@
         /// <param name="cancellationToken">The <see cref="CancellationToken" /> used to propagate notifications that the operation should be cancelled.</param>
         /// <returns>A <see cref="Task{TResult}"/> of <see cref="int"/> representing the count of all entities represented in the given database table.</returns>
         Task<int> CountAsync(CancellationToken cancellationToken = default);
+        
+        Task<int> CountAsync(Expression<Func<TEntity, bool>> filterExpression);
 
         /// <summary>
         /// Updates the given <paramref name="entity"/> in the registered database provider. If primary keys have been changed this operation will throw a <see cref="DbUpdateConcurrencyException"/>.
