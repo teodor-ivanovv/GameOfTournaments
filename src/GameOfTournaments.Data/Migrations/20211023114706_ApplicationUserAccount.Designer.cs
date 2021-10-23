@@ -3,15 +3,17 @@ using System;
 using GameOfTournaments.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace GameOfTournaments.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211023114706_ApplicationUserAccount")]
+    partial class ApplicationUserAccount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,9 +75,6 @@ namespace GameOfTournaments.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("Age")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ApplicationUserAccountId")
                         .HasColumnType("integer");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -166,8 +165,7 @@ namespace GameOfTournaments.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId")
-                        .IsUnique();
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("ApplicationUsersAccounts");
                 });
@@ -595,8 +593,8 @@ namespace GameOfTournaments.Data.Migrations
             modelBuilder.Entity("GameOfTournaments.Data.Models.ApplicationUserAccount", b =>
                 {
                     b.HasOne("GameOfTournaments.Data.Models.ApplicationUser", "ApplicationUser")
-                        .WithOne("ApplicationUserAccount")
-                        .HasForeignKey("GameOfTournaments.Data.Models.ApplicationUserAccount", "ApplicationUserId")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -693,8 +691,6 @@ namespace GameOfTournaments.Data.Migrations
 
             modelBuilder.Entity("GameOfTournaments.Data.Models.ApplicationUser", b =>
                 {
-                    b.Navigation("ApplicationUserAccount");
-
                     b.Navigation("Permissions");
                 });
 

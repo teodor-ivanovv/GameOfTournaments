@@ -14,6 +14,10 @@
         public string LastName { get; set; }
 
         public bool Male { get; set; }
+        
+        public ApplicationUserAccount ApplicationUserAccount { get; set; }
+        
+        public int ApplicationUserAccountId { get; set; }
 
         public IEnumerable<Permission> Permissions { get; set; } = new HashSet<Permission>();
     }

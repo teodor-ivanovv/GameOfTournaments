@@ -10,6 +10,8 @@
             => serviceCollection
                 .AddSingleton<IApplicationUserCache, ApplicationUserCache>()
                 .AddScoped<IJwtService, JwtService>()
+                .AddScoped<IApplicationUserService, ApplicationUserService>()
+                .AddScoped<IApplicationUserAccountService, ApplicationUserAccountService>()
                 .AddScoped<ILogger, Logger>()
                 .AddScoped<IAuditLogger, AuditLogger>()
                 .AddScoped<IGameService, GameService>()

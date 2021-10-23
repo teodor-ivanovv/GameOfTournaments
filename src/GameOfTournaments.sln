@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameOfTournamentsTests", ".
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameOfTournaments.Service.Tests", "GameOfTournaments.Service.Tests\GameOfTournaments.Service.Tests.csproj", "{0ECF4CFE-9B97-4D92-A1FD-D47F7B904CEF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameOfTournaments.Data.Shared", "GameOfTournaments.Data.Shared\GameOfTournaments.Data.Shared.csproj", "{0EF8FB71-CAE2-46E5-B5DD-AFA2514C97AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,10 @@ Global
 		{0ECF4CFE-9B97-4D92-A1FD-D47F7B904CEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0ECF4CFE-9B97-4D92-A1FD-D47F7B904CEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0ECF4CFE-9B97-4D92-A1FD-D47F7B904CEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EF8FB71-CAE2-46E5-B5DD-AFA2514C97AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EF8FB71-CAE2-46E5-B5DD-AFA2514C97AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EF8FB71-CAE2-46E5-B5DD-AFA2514C97AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EF8FB71-CAE2-46E5-B5DD-AFA2514C97AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{9E8F7108-E6D5-404A-9A56-09812B026BF8} = {07D34C48-1896-4DC4-8F83-60E1B79EA308}
@@ -61,5 +67,6 @@ Global
 		{7257D046-1594-4674-844E-94D10E6DF47A} = {E7A18A53-B50C-43A7-BB43-385E3611C8BF}
 		{E268F6AE-DFAF-4482-AD93-394C4B8218DB} = {E7A18A53-B50C-43A7-BB43-385E3611C8BF}
 		{0ECF4CFE-9B97-4D92-A1FD-D47F7B904CEF} = {E7A18A53-B50C-43A7-BB43-385E3611C8BF}
+		{0EF8FB71-CAE2-46E5-B5DD-AFA2514C97AF} = {07D34C48-1896-4DC4-8F83-60E1B79EA308}
 	EndGlobalSection
 EndGlobal

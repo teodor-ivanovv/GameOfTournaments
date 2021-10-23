@@ -11,16 +11,10 @@
         {
         }
         
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            base.OnModelCreating(builder);
-            
-            builder.Entity<ApplicationUser>()
-                .HasMany(u => u.Permissions)
-                .WithOne(p => p.ApplicationUser)
-                .HasForeignKey(p => p.ApplicationUserId);
-        }
-
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        
+        public DbSet<ApplicationUserAccount> ApplicationUsersAccounts { get; set; }
+        
         public DbSet<AuditLog> AuditLogs { get; set; }
 
         public DbSet<Log> Logs { get; set; }
@@ -36,5 +30,20 @@
         public DbSet<Tournament> Tournaments { get; set; }
         
         public DbSet<Permission> Permissions { get; set; }
+        
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+            
+            builder.Entity<ApplicationUser>()
+                .HasMany(u => u.Permissions)
+                .WithOne(p => p.ApplicationUser)
+                .HasForeignKey(p => p.ApplicationUserId);
+
+            builder.Entity<ApplicationUser>()
+                .HasOne(u => u.ApplicationUserAccount)
+                .WithOne(p => p.ApplicationUser)
+                .HasForeignKey<ApplicationUserAccount>(a => a.ApplicationUserId);
+        }
     }
 }
