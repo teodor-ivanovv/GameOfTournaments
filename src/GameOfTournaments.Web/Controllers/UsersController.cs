@@ -113,8 +113,8 @@
 
         private async Task CacheApplicationUserAsync(ApplicationUser user)
         {
-            var permissions = await this._permissionService.GetAsync(
-                new GetOptions<Permission, int, PermissionModel>()
+            var permissionsOperationResult = await this._permissionService.GetAsync(
+                new GetOptions<Permission, int, PermissionModel>
                 {
                     FilterExpression = p => p.ApplicationUserId == user.Id,
                     Projection = new ProjectionOptions<Permission, PermissionModel>(
@@ -124,11 +124,14 @@
                             Permissions = p.Permissions,
                         }),
                 });
+            
+            if (!permissionsOperationResult.Success)
+                return;
 
             var applicationUserCacheModel = new ApplicationUserCacheModel
             {
                 Id = user.Id,
-                Permissions = permissions?.ToList(),
+                Permissions = permissionsOperationResult.Object?.ToList(),
             };
             
             this._applicationUserCache.Cache(applicationUserCacheModel);

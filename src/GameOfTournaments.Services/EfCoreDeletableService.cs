@@ -29,13 +29,18 @@
             if (!enumerated.Any())
                 return new NotExistingOperationResult<TEntity>(typeof(TEntity).Name);
 
-            var entity = await this.GetAsync(enumerated.ToArray(), cancellationToken);
-            if (entity == null)
-                return new NotExistingOperationResult<TEntity>(typeof(TEntity).Name);
+            var getEntityOperationResult = await this.GetAsync(enumerated.ToArray(), cancellationToken);
+
+            if (!getEntityOperationResult.Success)
+            {
+                operationResult.AddOperationResult(getEntityOperationResult);
+
+                return operationResult;
+            }
 
             await using var dbContext = this.ContextFactory.CreateDbContext();
-            entity.Deleted = true;
-            entity.Time = DateTimeOffset.UtcNow;
+            getEntityOperationResult.Object.Deleted = true;
+            getEntityOperationResult.Object.Time = DateTimeOffset.UtcNow;
        
             var affectedRows = await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -47,7 +52,7 @@
                 typeof(TEntity).FullName);
 
             operationResult.AffectedRows = affectedRows;
-            operationResult.Object = entity;
+            operationResult.Object = getEntityOperationResult.Object;
 
             return operationResult;
         }

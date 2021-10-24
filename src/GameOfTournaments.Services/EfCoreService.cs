@@ -35,7 +35,6 @@
         {
             var operationResult = new OperationResult<TEntity>();
             operationResult.ValidateNotNull(entity, nameof(EfCoreService<TEntity>), nameof(this.CreateAsync), nameof(entity));
-
             if (!operationResult.Success)
                 return operationResult;
 
@@ -64,6 +63,7 @@
             var enumerated = entities?.ToList();
 
             operationResult.ValidateNotNull(enumerated, nameof(EfCoreService<TEntity>), nameof(this.CreateManyAsync), nameof(entities));
+            
             if (!operationResult.Success)
                 return operationResult;
             
@@ -89,24 +89,31 @@
         }
 
         /// <inheritdoc />
-        public async Task<TEntity> GetAsync(IEnumerable<object> identifiers, CancellationToken cancellationToken = default)
+        public async Task<IOperationResult<TEntity>> GetAsync(IEnumerable<object> identifiers, CancellationToken cancellationToken = default)
         {
+            var operationResult = new OperationResult<TEntity>();
             var enumerated = identifiers as object[] ?? identifiers.ToArray();
-            if (!enumerated.Any())
-                return default;
+            operationResult.ValidateNotNull(enumerated, nameof(EfCoreService<TEntity>), nameof(this.GetAsync), nameof(enumerated));
 
+            if (!operationResult.Success)
+                return operationResult;
+            
             await using var dbContext = this.ContextFactory.CreateDbContext();
-
-            return await dbContext.Set<TEntity>()
+            operationResult.Object = await dbContext.Set<TEntity>()
                 .FindAsync(enumerated.ToArray(), cancellationToken: cancellationToken)
                 .AsTask();
+
+            return operationResult;
         }
 
         /// <inheritdoc />
-        public virtual async Task<List<TEntity>> GetAsync(IGetOptions<TEntity> getOptions, CancellationToken cancellationToken = default)
+        public virtual async Task<IOperationResult<List<TEntity>>> GetAsync(IGetOptions<TEntity> getOptions, CancellationToken cancellationToken = default)
         {
-            if (getOptions == null)
-                throw new ArgumentNullException(nameof(getOptions));
+            var operationResult = new OperationResult<List<TEntity>>();
+            operationResult.ValidateNotNull(getOptions, nameof(EfCoreService<TEntity>), nameof(this.GetAsync), nameof(getOptions));
+
+            if (!operationResult.Success)
+                return operationResult;
 
             await using var dbContext = this.ContextFactory.CreateDbContext();
             var queryable = dbContext.Set<TEntity>().AsQueryable();
@@ -114,18 +121,24 @@
             if (getOptions.FilterExpression != null)
                 queryable = queryable.Where(getOptions.FilterExpression);
 
-            return await queryable.ToListAsync(cancellationToken: cancellationToken);
+            operationResult.Object = await queryable.ToListAsync(cancellationToken: cancellationToken);
+            return operationResult;
         }
 
-        public virtual async Task<List<TEntity>> GetAsync<TSortKey>(IGetOptions<TEntity, TSortKey> getOptions, CancellationToken cancellationToken = default)
+        public virtual async Task<IOperationResult<List<TEntity>>> GetAsync<TSortKey>(IGetOptions<TEntity, TSortKey> getOptions, CancellationToken cancellationToken = default)
         {
-            if (getOptions == null)
-                throw new ArgumentNullException(nameof(getOptions));
+            var operationResult = new OperationResult<List<TEntity>>();
+            operationResult.ValidateNotNull(getOptions, nameof(EfCoreService<TEntity>), nameof(this.GetAsync), nameof(getOptions));
+            
+            if (!operationResult.Success)
+                return operationResult;
 
             if (getOptions.Pagination != null && getOptions.Sort == null)
+            {
                 throw new ArgumentNullException(
                     nameof(getOptions),
                     "GetAsync<TSortKey>(IGetOptions<TEntity, TSortKey> getOptions, CancellationToken cancellationToken = default) requires sort options when pagination is executed.");
+            }
 
             await using var dbContext = this.ContextFactory.CreateDbContext();
             var queryable = dbContext.Set<TEntity>().AsQueryable();
@@ -147,25 +160,34 @@
                     .Take(getOptions.Pagination.Count);
             }
 
-            return await queryable.ToListAsync(cancellationToken: cancellationToken);
+            operationResult.Object = await queryable.ToListAsync(cancellationToken: cancellationToken);
+            return operationResult;
         }
 
-        public virtual async Task<List<TProjection>> GetAsync<TSortKey, TProjection>(
+        public virtual async Task<IOperationResult<List<TProjection>>> GetAsync<TSortKey, TProjection>(
             IGetOptions<TEntity, TSortKey, TProjection> getOptions, 
             CancellationToken cancellationToken = default)
         {
-            if (getOptions == null)
-                throw new ArgumentNullException(nameof(getOptions));
+            var operationResult = new OperationResult<List<TProjection>>();
+            operationResult.ValidateNotNull(getOptions, nameof(EfCoreService<TEntity>), nameof(this.GetAsync), nameof(getOptions));
+
+            if (!operationResult.Success)
+                return operationResult;
 
             if (getOptions.Projection?.Selector == null)
-                throw new ArgumentNullException(
-                    nameof(getOptions),
+            {
+                operationResult.AddErrorMessage(
                     "GetAsync<TSortKey, TProjection>(IGetOptions<TEntity, TSortKey, TProjection> getOptions, CancellationToken cancellationToken = default) requires a projection selector.");
+            }
 
             if (getOptions.Pagination != null && getOptions.Sort == null)
-                throw new ArgumentNullException(
-                    nameof(getOptions),
+            {
+                operationResult.AddErrorMessage(
                     "GetAsync<TSortKey, TProjection>(IGetOptions<TEntity, TSortKey, TProjection> getOptions, CancellationToken cancellationToken = default) requires sort options when pagination is executed.");
+            }
+            
+            if (!operationResult.Success)
+                return operationResult;
 
             await using var dbContext = this.ContextFactory.CreateDbContext();
             var queryable = dbContext.Set<TEntity>().AsQueryable();
@@ -187,7 +209,8 @@
                     .Take(getOptions.Pagination.Count);
             }
 
-            return await queryable.Select(getOptions.Projection.Selector).ToListAsync(cancellationToken: cancellationToken);
+            operationResult.Object = await queryable.Select(getOptions.Projection.Selector).ToListAsync(cancellationToken: cancellationToken);
+            return operationResult;
         }
 
         // protected async Task<List<TEntity>> FilterAsNoTrackingAsync(Expression<Func<TEntity, bool>> expressionFilter)
@@ -240,11 +263,14 @@
             if (!operationResult.Success)
                 return operationResult;
 
-            var databaseEntity = await this.GetAsync(identifiers, cancellationToken);
-            if (databaseEntity == null)
-                return new NotExistingOperationResult<TEntity>(typeof(TEntity).Name);
+            var getEntityOperationResult = await this.GetAsync(identifiers, cancellationToken);
+            if (!getEntityOperationResult.Success)
+            {
+                operationResult.AddOperationResult(getEntityOperationResult);
+                return operationResult;
+            }
    
-            this.ApplyAuditInformation(entity, databaseEntity);
+            this.ApplyAuditInformation(entity, getEntityOperationResult.Object);
             
             await using var dbContext = this.ContextFactory.CreateDbContext();
             dbContext.Set<TEntity>().Update(entity);
@@ -299,6 +325,23 @@
             operationResult.ValidatePermissions(
                 hasPermissions,
                 this._auditLogger.ConstructLogAction(hasPermissions, scope, permissions, string.Join(", ", identifiers ?? Array.Empty<object>())));
+
+            return operationResult;
+        }
+
+        public IOperationResult<T> ValidateUserIsAuthenticated<T>()
+        {
+            var operationResult = new OperationResult<T>();
+            if (!this._authenticationService.Authenticated)
+                operationResult.AddErrorMessage("User is not authenticated!");
+
+            return operationResult;
+        }
+        
+        public IOperationResult<T> ValidateUserIsAuthenticated<T>(IOperationResult<T> operationResult)
+        {
+            if (!this._authenticationService.Authenticated)
+                operationResult.AddErrorMessage("User is not authenticated!");
 
             return operationResult;
         }

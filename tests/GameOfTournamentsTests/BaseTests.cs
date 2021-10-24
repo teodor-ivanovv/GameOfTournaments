@@ -7,6 +7,7 @@ namespace GameOfTournamentsTests
     using GameOfTournaments.Data.Models;
     using GameOfTournaments.Services;
     using GameOfTournaments.Services.Infrastructure;
+    using GameOfTournaments.Shared;
     using KellermanSoftware.CompareNetObjects;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
@@ -45,12 +46,12 @@ namespace GameOfTournamentsTests
             this.AuthenticationService.Set(new AuthenticationContext(true));
         }
         
-        // protected void AuthenticateUser(params string[] roles)
-        // {
-        //     var authenticationContext = new AuthenticationContext(true);
-        //     authenticationContext.Permissions.AddRange(roles);
-        //     this.AuthenticationService.Set(authenticationContext);
-        // }
+        protected void AuthenticateUser(params PermissionModel[] roles)
+        {
+            var authenticationContext = new AuthenticationContext(true);
+            authenticationContext.Permissions.AddRange(roles);
+            this.AuthenticationService.Set(authenticationContext);
+        }
         
         protected void AuthenticateUser(IAuthenticationContext authenticationContext)
         {
