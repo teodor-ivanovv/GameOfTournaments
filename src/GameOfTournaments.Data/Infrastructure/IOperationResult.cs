@@ -21,6 +21,8 @@
         IEnumerable<string> Errors { get; }
 
         IOperationResult<T> AddErrorMessage(string errorMessage);
+        
+        void AddOperationResult<TResult>(IOperationResult<TResult> operationResult);
 
         IOperationResult<T> ValidateNotNull(object obj, string className, string method, string parameter);
         

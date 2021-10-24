@@ -32,6 +32,12 @@
             return this;
         }
 
+        public void AddOperationResult<TResult>(IOperationResult<TResult> operationResult)
+        {
+            foreach (var error in operationResult.Errors)
+                this.AddErrorMessage(error);
+        }
+
         public IOperationResult<T> ValidateNotNull(object obj, string className, string method, string parameter)
         {
             Guard.Against.NullOrWhiteSpace(className, nameof(className));
