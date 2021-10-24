@@ -33,16 +33,16 @@
         /// </summary>
         /// <param name="identifiers">The identifiers of the given entity to retrieve.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken" /> used to propagate notifications that the operation should be cancelled.</param>
-        /// <returns>A <see cref="Task{TResult}"/> of <typeparamref name="TEntity"/> representing the retrieved entity or null if it doesn't exist in the database.</returns>
-        Task<TEntity> GetAsync(IEnumerable<object> identifiers, CancellationToken cancellationToken = default);
+        /// <returns>A <see cref="Task{TResult}"/> of <see cref="IOperationResult{T}"/> of <typeparamref name="TEntity"/> representing the retrieved entity or null if it doesn't exist in the database.</returns>
+        Task<IOperationResult<TEntity>> GetAsync(IEnumerable<object> identifiers, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets/retrieves entities of type <typeparamref name="TEntity"/> by the given <paramref name="getOptions"/> options configuration.
         /// </summary>
         /// <param name="getOptions">The get configuration options used to specify filter, sorting, projection and pagination.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken" /> used to propagate notifications that the operation should be cancelled.</param>
-        /// <returns>A <see cref="Task{TResult}"/> of <see cref="List{T}"/> of <see cref="TEntity"/> entities.</returns>
-        Task<List<TEntity>> GetAsync(IGetOptions<TEntity> getOptions, CancellationToken cancellationToken = default);
+        /// <returns>A <see cref="Task{TResult}"/> of <see cref="IOperationResult{T}"/> of <see cref="List{T}"/> of <see cref="TEntity"/> entities.</returns>
+        Task<IOperationResult<List<TEntity>>> GetAsync(IGetOptions<TEntity> getOptions, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets/retrieves entities of type <typeparamref name="TEntity"/> by the given <paramref name="getOptions"/> options configuration.
@@ -50,8 +50,8 @@
         /// <param name="getOptions">The get configuration options used to specify filter, sorting, projection and pagination.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken" /> used to propagate notifications that the operation should be cancelled.</param>
         /// <typeparam name="TSortKey">The type of the property that will be used to sort the result entities.</typeparam>
-        /// <returns>A <see cref="Task{TResult}"/> of <see cref="List{T}"/> of <see cref="TEntity"/> entities.</returns>
-        Task<List<TEntity>> GetAsync<TSortKey>(IGetOptions<TEntity, TSortKey> getOptions, CancellationToken cancellationToken = default);
+        /// <returns>A <see cref="Task{TResult}"/> of <see cref="IOperationResult{T}"/> of <see cref="List{T}"/> of <see cref="TEntity"/> entities.</returns>
+        Task<IOperationResult<List<TEntity>>> GetAsync<TSortKey>(IGetOptions<TEntity, TSortKey> getOptions, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets/retrieves entities of type <typeparamref name="TEntity"/> by the given <paramref name="getOptions"/> options configuration.
@@ -60,8 +60,8 @@
         /// <param name="cancellationToken">The <see cref="CancellationToken" /> used to propagate notifications that the operation should be cancelled.</param>
         /// <typeparam name="TSortKey">The type of the property that will be used to sort the result entities.</typeparam>
         /// <typeparam name="TProjection">The type of the resulted projected entity that will be mapped from the original <typeparamref name="TEntity"/>.</typeparam>
-        /// <returns>A <see cref="Task{TResult}"/> of <see cref="List{T}"/> of <see cref="TProjection"/> entities.</returns>
-        Task<List<TProjection>> GetAsync<TSortKey, TProjection>(IGetOptions<TEntity, TSortKey, TProjection> getOptions, CancellationToken cancellationToken = default);
+        /// <returns>A <see cref="Task{TResult}"/> of <see cref="IOperationResult{T}"/> of <see cref="List{T}"/> of <see cref="TProjection"/> entities.</returns>
+        Task<IOperationResult<List<TProjection>>> GetAsync<TSortKey, TProjection>(IGetOptions<TEntity, TSortKey, TProjection> getOptions, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets the count of all entities represented in the given database table. 
@@ -87,5 +87,9 @@
         IOperationResult<TModel> ValidatePermissions<TKey, TModel>(TModel model, PermissionScope scope, Permissions permissions, TKey entityId) where TModel : class;
 
         IOperationResult<TModel> ValidatePermissions<TModel>(TModel model, PermissionScope scope, Permissions permissions, object[] identifiers) where TModel : class;
+
+        IOperationResult<T> ValidateUserIsAuthenticated<T>();
+        
+        IOperationResult<T> ValidateUserIsAuthenticated<T>(IOperationResult<T> operationResult);
     }
 }

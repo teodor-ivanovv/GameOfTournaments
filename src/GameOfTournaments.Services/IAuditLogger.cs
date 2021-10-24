@@ -1,14 +1,16 @@
 ﻿namespace GameOfTournaments.Services
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using GameOfTournaments.Data.Models;
+    using GameOfTournaments.Services.Infrastructure;
     using GameOfTournaments.Shared;
 
     public interface IAuditLogger
     {
         Task LogAsync(AuditLog log);
-
+        
         AuditLog Construct(PermissionScope scope, Permissions permissions, DateTimeOffset actionTime, string message, bool hasPermissions);
         
         AuditLog Construct<T>(PermissionScope scope, Permissions permissions, DateTimeOffset actionTime, string message, T entityId, bool hasPermissions);
