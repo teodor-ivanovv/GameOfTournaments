@@ -32,22 +32,34 @@
             this._applicationUserAccountService = applicationUserAccountService ?? throw new ArgumentNullException(nameof(applicationUserAccountService));
         }
 
-        public override Task<List<TProjection>> GetAsync<TSortKey, TProjection>(IGetOptions<Tournament, TSortKey, TProjection> getOptions, CancellationToken cancellationToken = default)
+        public override Task<IOperationResult<List<TProjection>>> GetAsync<TSortKey, TProjection>(IGetOptions<Tournament, TSortKey, TProjection> getOptions, CancellationToken cancellationToken = default)
         {
+            var operationResult = this.ValidateUserIsAuthenticated<List<TProjection>>();
+            if (!operationResult.Success)
+                return Task.FromResult(operationResult);
+
             // Apply public tournaments filter
             ApplyPublicFilter(getOptions);
             return base.GetAsync(getOptions, cancellationToken);
         }
 
-        public override Task<List<Tournament>> GetAsync<TSortKey>(IGetOptions<Tournament, TSortKey> getOptions, CancellationToken cancellationToken = default)
+        public override Task<IOperationResult<List<Tournament>>> GetAsync<TSortKey>(IGetOptions<Tournament, TSortKey> getOptions, CancellationToken cancellationToken = default)
         {
+            var operationResult = this.ValidateUserIsAuthenticated<List<Tournament>>();
+            if (!operationResult.Success)
+                return Task.FromResult(operationResult);
+            
             // Apply public tournaments filter
             ApplyPublicFilter(getOptions);
             return base.GetAsync(getOptions, cancellationToken);
         }
 
-        public override Task<List<Tournament>> GetAsync(IGetOptions<Tournament> getOptions, CancellationToken cancellationToken = default)
+        public override Task<IOperationResult<List<Tournament>>> GetAsync(IGetOptions<Tournament> getOptions, CancellationToken cancellationToken = default)
         {
+            var operationResult = this.ValidateUserIsAuthenticated<List<Tournament>>();
+            if (!operationResult.Success)
+                return Task.FromResult(operationResult);
+            
             // Apply public tournaments filter
             ApplyPublicFilter(getOptions);
             return base.GetAsync(getOptions, cancellationToken);
@@ -87,10 +99,11 @@
 
         private async Task<OperationResult<Tournament>> ValidateUserCanCreateTournamentAsync(CancellationToken cancellationToken)
         {
+            var operationResult = new OperationResult<Tournament>();
             var createdTournaments = await this.CountAsync(
                 t => t.CreatedBy == this._authenticationService.Context.Id && t.Created.Equals(DateTime.UtcNow.Date));
 
-            var tournamentsPerDay = await this._applicationUserAccountService.GetAsync(
+            var tournamentsPerDayOperationResult = await this._applicationUserAccountService.GetAsync(
                 new GetOptions<ApplicationUserAccount, int, int>
                 {
                     FilterExpression = userAccount => userAccount.ApplicationUserId == this._authenticationService.Context.Id,
@@ -98,8 +111,13 @@
                 },
                 cancellationToken);
 
-            var operationResult = new OperationResult<Tournament>();
-            var tournamentsPerDayCount = tournamentsPerDay.Count == 1 ? tournamentsPerDay.FirstOrDefault() : 10;
+            if (!tournamentsPerDayOperationResult.Success)
+            {
+                operationResult.AddOperationResult(tournamentsPerDayOperationResult);
+                return operationResult;
+            }
+
+            var tournamentsPerDayCount = tournamentsPerDayOperationResult.Object.Count == 1 ? tournamentsPerDayOperationResult.Object.FirstOrDefault() : 10;
             if (createdTournaments > tournamentsPerDayCount)
                 operationResult.AddErrorMessage($"You cannot create more tournaments for today. Currently you can create up to {tournamentsPerDayCount} tournaments. Upgrade your subscription in order to crete more tournaments.");
 
