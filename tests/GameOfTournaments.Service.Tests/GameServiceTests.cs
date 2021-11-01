@@ -2,7 +2,6 @@ namespace GameOfTournaments.Service.Tests
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using GameOfTournaments.Data.Models;
     using GameOfTournaments.Services.Infrastructure;
@@ -12,7 +11,7 @@ namespace GameOfTournaments.Service.Tests
 
     public class GameServiceTests : BaseTests
     {
-        private readonly GetOptions<Game, int> gameGetOptions = new()
+        private readonly GetOptions<Game, int> getOptions = new()
         {
             Sort = new SortOptions<Game, int>(true, g => g.Id),
             Pagination = new PageOptions(1, 1000),
@@ -23,12 +22,10 @@ namespace GameOfTournaments.Service.Tests
         {
             // Arrange
             // Act
-            var gamesOperationResult = await this.GameService.GetAsync(this.gameGetOptions);
+            var operationResult = await this.GameService.GetAsync(this.getOptions);
 
             // Assert
-            Assert.NotNull(gamesOperationResult);
-            Assert.False(gamesOperationResult.Success);
-            Assert.Null(gamesOperationResult.Object);
+            this.AssertOperationResult(operationResult, false);
         }
         
         [Fact]
@@ -38,12 +35,10 @@ namespace GameOfTournaments.Service.Tests
             this.AuthenticateUser();
             
             // Act
-            var gamesOperationResult = await this.GameService.GetAsync(this.gameGetOptions);
+            var operationResult = await this.GameService.GetAsync(this.getOptions);
 
             // Assert
-            Assert.NotNull(gamesOperationResult);
-            Assert.True(gamesOperationResult.Success);
-            Assert.Empty(gamesOperationResult.Object);
+            this.AssertOperationResult(operationResult, 0);
         }
         
         [Fact]
@@ -54,22 +49,40 @@ namespace GameOfTournaments.Service.Tests
             var games = this.CreateGameModels(100);
 
             var operationResult = await this.GameService.CreateManyAsync(games);
-            Assert.NotNull(operationResult);
-            Assert.True(operationResult.Success);
-            Assert.Empty(operationResult.Errors);
-            Assert.NotNull(operationResult.Object);
-            Assert.NotEmpty(operationResult.Object);
-            Assert.Equal(100, operationResult.Object.Count());
+            this.AssertOperationResult(operationResult, 100);
             
             // Act
             this.AuthenticateUser((IAuthenticationContext)null);
 
-            var databaseGamesOperationResult = await this.GameService.GetAsync(this.gameGetOptions);
+            var databaseGamesOperationResult = await this.GameService.GetAsync(this.getOptions);
             
             // Assert
-            Assert.NotNull(databaseGamesOperationResult);
-            Assert.False(databaseGamesOperationResult.Success);
-            Assert.Null(databaseGamesOperationResult.Object);
+            this.AssertOperationResult(databaseGamesOperationResult, false);
+        }
+        
+        [Fact]
+        public async Task GetShouldReturnNothingIfUserIsNotAuthenticatedCreatingGamesOneByOne()
+        {
+            // Arrange
+            this.AuthenticateUser(new PermissionModel { Scope = PermissionScope.Game, Permissions = Permissions.Create });
+            for (var i = 0; i < 100; i++)
+            {
+                var game = this.CreateGameModel();
+                var operationResult = await this.GameService.CreateAsync(game);
+             
+                this.AssertOperationResult(operationResult);
+            }
+
+            var getGamesOperationResult = await this.GameService.GetAsync(this.getOptions);
+            this.AssertOperationResult(getGamesOperationResult, 100);
+            
+            // Act
+            this.AuthenticateUser((IAuthenticationContext)null);
+
+            var databaseGamesOperationResult = await this.GameService.GetAsync(this.getOptions);
+            
+            // Assert
+            this.AssertOperationResult(databaseGamesOperationResult, false);
         }
         
         [Fact]
@@ -82,16 +95,12 @@ namespace GameOfTournaments.Service.Tests
             var operationResult = await this.GameService.CreateAsync(game);
 
             // Assert
-            Assert.NotNull(operationResult);
-            Assert.False(operationResult.Success);
-            Assert.True(operationResult.Errors.Any());
+            this.AssertOperationResult(operationResult, false);
             
             // Authenticate user and assert no game created for sure
             this.AuthenticateUser();
-            var gamesOperationResult = await this.GameService.GetAsync(this.gameGetOptions);
-            Assert.NotNull(gamesOperationResult);
-            Assert.True(gamesOperationResult.Success);
-            Assert.Empty(gamesOperationResult.Object);
+            var gamesOperationResult = await this.GameService.GetAsync(this.getOptions);
+            this.AssertOperationResult(gamesOperationResult, 0);
 
             // await this.AssertAuditLogAsync(Permissions.CanCreateGame, null, false);
         }
@@ -107,9 +116,7 @@ namespace GameOfTournaments.Service.Tests
             var operationResult = await this.GameService.CreateAsync(game);
 
             // Assert
-            Assert.NotNull(operationResult);
-            Assert.False(operationResult.Success);
-            Assert.True(operationResult.Errors.Any());
+            this.AssertOperationResult(operationResult, false);
         }
         
         [Fact]

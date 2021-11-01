@@ -39,7 +39,7 @@
                 return Task.FromResult(operationResult);
 
             // Apply public tournaments filter
-            ApplyPublicFilter(getOptions);
+            this.ApplyPublicFilter(getOptions);
             return base.GetAsync(getOptions, cancellationToken);
         }
 
@@ -50,7 +50,7 @@
                 return Task.FromResult(operationResult);
             
             // Apply public tournaments filter
-            ApplyPublicFilter(getOptions);
+            this.ApplyPublicFilter(getOptions);
             return base.GetAsync(getOptions, cancellationToken);
         }
 
@@ -61,7 +61,7 @@
                 return Task.FromResult(operationResult);
             
             // Apply public tournaments filter
-            ApplyPublicFilter(getOptions);
+            this.ApplyPublicFilter(getOptions);
             return base.GetAsync(getOptions, cancellationToken);
         }
 
@@ -78,14 +78,22 @@
             return await base.CreateAsync(entity, cancellationToken);
         }
         
-        public override Task<IOperationResult<IEnumerable<Tournament>>> CreateManyAsync(IEnumerable<Tournament> entities, CancellationToken cancellationToken = default)
+        public override async Task<IOperationResult<IEnumerable<Tournament>>> CreateManyAsync(IEnumerable<Tournament> entities, CancellationToken cancellationToken = default)
         {
-            // TODO: Ensure collection ToList
-            var operationResult = this.ValidatePermissions(entities, Scope, Permissions.Create);
+            var enumerated = entities.EnsureCollectionToList();
+            var operationResult = this.ValidatePermissions(enumerated, Scope, Permissions.Create);
             if (!operationResult.Success)
-                return Task.FromResult(operationResult);
+                return operationResult;
             
-            return base.CreateManyAsync(entities, cancellationToken);
+            var canCreateTournamentsResult = await this.GetUserRemainingTournamentsCreationAsync(enumerated.Count, cancellationToken);
+
+            if (!canCreateTournamentsResult.Success)
+            {
+                operationResult.AddOperationResult(canCreateTournamentsResult);
+                return operationResult;
+            }
+            
+            return await base.CreateManyAsync(enumerated, cancellationToken);
         }
 
         public override Task<IOperationResult<Tournament>> UpdateAsync(IEnumerable<object> identifiers, Tournament entity, CancellationToken cancellationToken = default)
@@ -99,7 +107,38 @@
 
         private async Task<OperationResult<Tournament>> ValidateUserCanCreateTournamentAsync(CancellationToken cancellationToken)
         {
+            var now = DateTime.UtcNow;
             var operationResult = new OperationResult<Tournament>();
+            var createdTournaments = await this.CountAsync(
+                t => t.CreatedBy == this._authenticationService.Context.Id 
+                    && t.Created.Year == now.Year
+                    && t.Created.Month == now.Month
+                    && t.Created.Day == now.Day);
+
+            var tournamentsPerDayOperationResult = await this._applicationUserAccountService.GetAsync(
+                new GetOptions<ApplicationUserAccount, int, int>
+                {
+                    FilterExpression = userAccount => userAccount.ApplicationUserId == this._authenticationService.Context.Id,
+                    Projection = new ProjectionOptions<ApplicationUserAccount, int>(userAccount => userAccount.CreateTournamentsPerDay),
+                },
+                cancellationToken);
+
+            if (!tournamentsPerDayOperationResult.Success)
+            {
+                operationResult.AddOperationResult(tournamentsPerDayOperationResult);
+                return operationResult;
+            }
+
+            var tournamentsPerDayCount = tournamentsPerDayOperationResult.Object.Count == 1 ? tournamentsPerDayOperationResult.Object.FirstOrDefault() : 10;
+            if (createdTournaments >= tournamentsPerDayCount)
+                operationResult.AddErrorMessage($"You cannot create more tournaments for today. Currently you can create up to {tournamentsPerDayCount} tournaments. Today you have created {createdTournaments} tournaments. Upgrade your subscription in order to crete more tournaments.");
+
+            return operationResult;
+        }
+        
+        private async Task<OperationResult<int>> GetUserRemainingTournamentsCreationAsync(int requestedTournamentsCount, CancellationToken cancellationToken)
+        {
+            var operationResult = new OperationResult<int>();
             var createdTournaments = await this.CountAsync(
                 t => t.CreatedBy == this._authenticationService.Context.Id && t.Created.Equals(DateTime.UtcNow.Date));
 
@@ -118,16 +157,22 @@
             }
 
             var tournamentsPerDayCount = tournamentsPerDayOperationResult.Object.Count == 1 ? tournamentsPerDayOperationResult.Object.FirstOrDefault() : 10;
-            if (createdTournaments > tournamentsPerDayCount)
-                operationResult.AddErrorMessage($"You cannot create more tournaments for today. Currently you can create up to {tournamentsPerDayCount} tournaments. Upgrade your subscription in order to crete more tournaments.");
+            if (requestedTournamentsCount > tournamentsPerDayCount - createdTournaments)
+                operationResult.AddErrorMessage($"You cannot create more tournaments for today. Currently you can create up to {tournamentsPerDayCount} tournaments. Today you have created {createdTournaments} tournaments. Upgrade your subscription in order to crete more tournaments.");
 
             return operationResult;
         }
         
-        private static void ApplyPublicFilter(IGetOptions<Tournament> getOptions)
+        private void ApplyPublicFilter(IGetOptions<Tournament> getOptions)
         {
+            var userId = this._authenticationService.Context?.Id ?? 0;
+            
             Expression<Func<Tournament, bool>> publicFilter = t => t.Public;
-            var finalFilter = ExpressionBuilder.JoinExpressions(getOptions.FilterExpression, publicFilter);
+            Expression<Func<Tournament, bool>> userFilter = t => !t.Public && t.CreatedBy == userId;
+            
+            var andFilter = getOptions.FilterExpression.AndAlso(publicFilter);
+            var finalFilter = andFilter.OrElse(userFilter);
+            
             getOptions.FilterExpression = finalFilter;
         }
     }

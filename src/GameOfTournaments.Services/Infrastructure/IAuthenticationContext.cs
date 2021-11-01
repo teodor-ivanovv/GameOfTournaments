@@ -7,7 +7,7 @@
 
     public interface IAuthenticationContext
     {
-        int Id { get; }
+        int Id { get; set; }
         
         string IpAddress { get; }
         
