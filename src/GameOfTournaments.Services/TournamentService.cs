@@ -129,7 +129,13 @@
                 return operationResult;
             }
 
-            var tournamentsPerDayCount = tournamentsPerDayOperationResult.Object.Count == 1 ? tournamentsPerDayOperationResult.Object.FirstOrDefault() : 10;
+            if (tournamentsPerDayOperationResult.Object.Count != 1)
+            {
+                operationResult.AddErrorMessage("Current user doesn't have enabled tournament creation permissions or creation configuration is not appropriately set at this stage.");
+                return operationResult;
+            }
+
+            var tournamentsPerDayCount = tournamentsPerDayOperationResult.Object.FirstOrDefault();
             if (createdTournaments >= tournamentsPerDayCount)
                 operationResult.AddErrorMessage($"You cannot create more tournaments for today. Currently you can create up to {tournamentsPerDayCount} tournaments. Today you have created {createdTournaments} tournaments. Upgrade your subscription in order to crete more tournaments.");
 
@@ -155,8 +161,14 @@
                 operationResult.AddOperationResult(tournamentsPerDayOperationResult);
                 return operationResult;
             }
+            
+            if (tournamentsPerDayOperationResult.Object.Count != 1)
+            {
+                operationResult.AddErrorMessage("Current user doesn't have enabled tournament creation permissions or creation configuration is not appropriately set at this stage.");
+                return operationResult;
+            }
 
-            var tournamentsPerDayCount = tournamentsPerDayOperationResult.Object.Count == 1 ? tournamentsPerDayOperationResult.Object.FirstOrDefault() : 10;
+            var tournamentsPerDayCount = tournamentsPerDayOperationResult.Object.FirstOrDefault();
             if (requestedTournamentsCount > tournamentsPerDayCount - createdTournaments)
                 operationResult.AddErrorMessage($"You cannot create more tournaments for today. Currently you can create up to {tournamentsPerDayCount} tournaments. Today you have created {createdTournaments} tournaments. Upgrade your subscription in order to crete more tournaments.");
 

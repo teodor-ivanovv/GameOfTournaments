@@ -53,7 +53,7 @@
             Guard.Against.Null(this._options.Value, nameof(this._options.Value));
         }
         
-        // TODO: Add audit logging.
+        // TODO: Add audit logging in services.
         [HttpPost]
         [AllowAnonymous]
         [Route(nameof(Register))]
@@ -68,8 +68,15 @@
             if (!createApplicationUserOperationResult.Success)
                 return this.BadRequest(createApplicationUserOperationResult);
 
+            // TODO: Get this from a configuration: CreateTournamentsPerDay
             var createApplicationUserAccountOperationResult = await this._applicationUserAccountService.CreateAsync(
-                new ApplicationUserAccount { ApplicationUserId = createApplicationUserOperationResult.Object.Id, CreateTournamentsPerDay = 10, });
+                new ApplicationUserAccount
+                {
+                    Id = createApplicationUserOperationResult.Object.Id,
+                    ApplicationUserId = createApplicationUserOperationResult.Object.Id,
+                    CreateTournamentsPerDay = 10,
+                });
+            
             if (!createApplicationUserAccountOperationResult.Success)
                 return this.BadRequest(createApplicationUserAccountOperationResult);
 

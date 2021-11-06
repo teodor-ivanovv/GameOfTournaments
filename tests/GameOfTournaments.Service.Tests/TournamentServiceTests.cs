@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using GameOfTournaments.Data.Factories.Models;
     using GameOfTournaments.Data.Models;
     using GameOfTournaments.Services.Infrastructure;
     using GameOfTournaments.Shared;
@@ -45,7 +46,7 @@
         public async Task GetShouldReturnNothingIfUserIsNotAuthenticated()
         {
             // Arrange
-            this.AuthenticateUser(new PermissionModel { Scope = PermissionScope.Tournament, Permissions = Permissions.Create });
+            await this.AuthenticateUserWithTournamentsCreationPermissionsAsync();
             var tournaments = this.CreateTournamentModels(10);
 
             var operationResult = await this.TournamentService.CreateManyAsync(tournaments);
@@ -64,7 +65,7 @@
         public async Task GetShouldReturnNothingIfUserIsNotAuthenticatedAndTournamentsCreationFailed()
         {
             // Arrange
-            this.AuthenticateUser(new PermissionModel { Scope = PermissionScope.Tournament, Permissions = Permissions.Create });
+            await this.AuthenticateUserWithTournamentsCreationPermissionsAsync();
             var tournaments = this.CreateTournamentModels(11);
 
             var operationResult = await this.TournamentService.CreateManyAsync(tournaments);
@@ -83,7 +84,7 @@
         public async Task GetShouldReturnNothingIfUserIsNotAuthenticatedAndFailIfMaximumCreationTournamentPerDayReached()
         {
             // Arrange
-            this.AuthenticateUser(new PermissionModel { Scope = PermissionScope.Tournament, Permissions = Permissions.Create });
+            await this.AuthenticateUserWithTournamentsCreationPermissionsAsync();
             var tournaments = this.CreateTournamentModels(100);
 
             var operationResult = await this.TournamentService.CreateManyAsync(tournaments);
@@ -106,7 +107,7 @@
         public async Task GetShouldReturnNothingIfUserIsNotAuthenticatedCreatingTournamentsOneByOne()
         {
             // Arrange
-            this.AuthenticateUser(new PermissionModel { Scope = PermissionScope.Tournament, Permissions = Permissions.Create });
+            await this.AuthenticateUserWithTournamentsCreationPermissionsAsync();
             for (var i = 0; i < 10; i++)
             {
                 var tournament = this.CreateTournamentModel();
@@ -131,7 +132,7 @@
         public async Task GetShouldReturnNothingIfUserIsNotAuthenticatedCreatingTournamentsOneByOneAndFailIfMaximumCreationTournamentPerDayReached()
         {
             // Arrange
-            this.AuthenticateUser(new PermissionModel { Scope = PermissionScope.Tournament, Permissions = Permissions.Create });
+            await this.AuthenticateUserWithTournamentsCreationPermissionsAsync();
             for (var i = 0; i < 100; i++)
             {
                 var tournament = this.CreateTournamentModel();
@@ -164,7 +165,7 @@
         public async Task UserShouldNotBeAbleToSeePrivateTournaments()
         {
             // Arrange
-            this.AuthenticateUser(new PermissionModel { Scope = PermissionScope.Tournament, Permissions = Permissions.Create });
+            await this.AuthenticateUserWithTournamentsCreationPermissionsAsync();
             
             var tournaments = this.CreateTournamentModels(5, privateTournaments: true);
             var operationResult = await this.TournamentService.CreateManyAsync(tournaments);
@@ -177,7 +178,7 @@
             this.AssertOperationResult(getPrivateTournamentsOperationResult, 5);
 
             // Switch user
-            this.AuthenticateUser(new PermissionModel { Scope = PermissionScope.Tournament, Permissions = Permissions.Create });
+            await this.AuthenticateUserWithTournamentsCreationPermissionsAsync();
             
             getPrivateTournamentsOperationResult = await this.TournamentService.GetAsync(this.getOptions);
             
@@ -189,7 +190,7 @@
         public async Task CreatingAndRetrievingShouldWorkAppropriatelyForUsers()
         {
             // Arrange
-            var firstUserId = this.AuthenticateUser(new PermissionModel { Scope = PermissionScope.Tournament, Permissions = Permissions.Create });
+            var firstUserId = await this.AuthenticateUserWithTournamentsCreationPermissionsAsync();
             
             var privateTournaments = this.CreateTournamentModels(5, privateTournaments: true);
             var operationResult = await this.TournamentService.CreateManyAsync(privateTournaments);
@@ -211,7 +212,7 @@
             this.AssertOperationResult(getTournamentsOperationResult, 7);
 
             // Switch user
-            this.AuthenticateUser(new PermissionModel { Scope = PermissionScope.Tournament, Permissions = Permissions.Create });
+            await this.AuthenticateUserWithTournamentsCreationPermissionsAsync();
             
             // Act
             getTournamentsOperationResult = await this.TournamentService.GetAsync(this.getOptions);
@@ -252,8 +253,24 @@
             // Assert
             this.AssertOperationResult(getTournamentsOperationResult, 8);
         }
-        
-        // Should not create more that default maximum
+
+        [Fact]
+        public async Task ShouldCreateSuccessfullyUpToMaximumDefinedTournamentsPerDay()
+        {
+            // Arrange
+            await this.AuthenticateUserWithTournamentsCreationPermissionsAsync(100);
+            
+            var privateTournaments = this.CreateTournamentModels(50, privateTournaments: true);
+            var operationResult = await this.TournamentService.CreateManyAsync(privateTournaments);
+            
+            // Assert
+            this.AssertOperationResult(operationResult, 50);
+            
+            var getTournamentsOperationResult = await this.TournamentService.GetAsync(this.getOptions);
+            
+            // Assert
+            this.AssertOperationResult(getTournamentsOperationResult, 50);
+        }
         
         private Tournament CreateTournamentModel(bool privateTournaments = false)
         {
@@ -271,6 +288,21 @@
         {
             for (var i = 0; i < count; i++)
                 yield return this.CreateTournamentModel(privateTournaments);
+        }
+
+        private async Task<int> AuthenticateUserWithTournamentsCreationPermissionsAsync(int maximumTournamentsPerDay = 10)
+        {
+            var createApplicationUserOperationResult =
+                await this.ApplicationUserService.CreateAsync(new RegisterUserModel { Username = Guid.NewGuid().ToString(), Password = Guid.NewGuid().ToString() });
+            Assert.True(createApplicationUserOperationResult.Success);
+
+            var id = this.AuthenticateUser(new PermissionModel { Scope = PermissionScope.Tournament, Permissions = Permissions.Create });
+            
+            var createApplicationUserAccountOperationResult = await this.ApplicationUserAccountService.CreateAsync(
+                new ApplicationUserAccount { Id = id, ApplicationUserId = id, CreateTournamentsPerDay = maximumTournamentsPerDay });
+            Assert.True(createApplicationUserAccountOperationResult.Success);
+
+            return id;
         }
     }
 }
