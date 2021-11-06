@@ -2,6 +2,7 @@ namespace GameOfTournaments.Web
 {
     using GameOfTournaments.Data.Models;
     using GameOfTournaments.Services;
+    using GameOfTournaments.Web.Hubs;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Identity;
@@ -31,6 +32,8 @@ namespace GameOfTournaments.Web
                 .RegisterDbContext(applicationSettings)
                 .AddJwtAuthentication(applicationSettings)
                 .AddApplicationServices();
+                
+            services.AddSignalR();
             
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "GameOfTournaments.Web", Version = "v1" }); });
         }
@@ -56,7 +59,13 @@ namespace GameOfTournaments.Web
                 .UseAuthorization();
 
             app.ApplyMigrations();
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(
+                endpoints =>
+                {
+                    endpoints.MapControllers();
+                    
+                    endpoints.MapHub<TournamentsHub>("/TournamentsHub");
+                });
         }
     }
 }
