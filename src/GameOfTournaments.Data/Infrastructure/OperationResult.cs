@@ -11,23 +11,21 @@
 
     public class OperationResult<T> : IOperationResult<T>
     {
-        private readonly List<string> errors = new();
-        
-        public bool Success { get; private set; } = true;
+        public bool Success { get; set; } = true;
 
-        public int Code { get; private set; }
+        public int Code { get; set; }
         
         public int AffectedRows { get; set; }
 
         public T Object { get; set; }
 
-        public IEnumerable<string> Errors => this.errors;
+        public List<string> Errors { get; set; } = new();
 
         public IOperationResult<T> AddErrorMessage(string errorMessage)
         {
             Guard.Against.NullOrWhiteSpace(errorMessage, nameof(errorMessage));
             this.Success = false;
-            this.errors.Add(errorMessage);
+            this.Errors.Add(errorMessage);
 
             return this;
         }

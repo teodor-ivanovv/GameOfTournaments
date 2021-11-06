@@ -81,12 +81,11 @@
         public override async Task<IOperationResult<IEnumerable<Tournament>>> CreateManyAsync(IEnumerable<Tournament> entities, CancellationToken cancellationToken = default)
         {
             var enumerated = entities.EnsureCollectionToList();
-            var operationResult = this.ValidatePermissions(enumerated, Scope, Permissions.Create);
+            var operationResult = this.ValidatePermissions<IEnumerable<Tournament>>(enumerated, Scope, Permissions.Create);
             if (!operationResult.Success)
                 return operationResult;
             
             var canCreateTournamentsResult = await this.GetUserRemainingTournamentsCreationAsync(enumerated.Count, cancellationToken);
-
             if (!canCreateTournamentsResult.Success)
             {
                 operationResult.AddOperationResult(canCreateTournamentsResult);

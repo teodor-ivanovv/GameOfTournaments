@@ -8,17 +8,17 @@
     {
     }
 
-    public interface IOperationResult<out T>
+    public interface IOperationResult<T>
     {
-        bool Success { get; }
+        bool Success { get; set; }
         
-        int Code { get; }
+        int Code { get; set; }
         
-        int AffectedRows { get; }
+        int AffectedRows { get;  set;}
         
-        T Object { get; }
+        T Object { get; set; }
         
-        IEnumerable<string> Errors { get; }
+        List<string> Errors { get; set; }
 
         IOperationResult<T> AddErrorMessage(string errorMessage);
         
