@@ -6,43 +6,55 @@
     public static class ExpressionBuilder
     {
         public static Expression<Func<T, bool>> AndAlso<T>(
-            this Expression<Func<T, bool>> expr1,
-            Expression<Func<T, bool>> expr2)
+            this Expression<Func<T, bool>> left,
+            Expression<Func<T, bool>> right)
         {
-            if (expr1 == null)
-                return expr2;
+            if (left == null && right == null)
+                return default;
+
+            if (left == null)
+                return right;
+
+            if (right == null)
+                return left;
             
-            var param = expr1.Parameters[0];
-            if (ReferenceEquals(param, expr2.Parameters[0]))
+            var param = left.Parameters[0];
+            if (ReferenceEquals(param, right.Parameters[0]))
             {
                 return Expression.Lambda<Func<T, bool>>(
-                    Expression.AndAlso(expr1.Body, expr2.Body), param);
+                    Expression.AndAlso(left.Body, right.Body), param);
             }
             
             return Expression.Lambda<Func<T, bool>>(
                 Expression.AndAlso(
-                    expr1.Body,
-                    Expression.Invoke(expr2, param)), param);
+                    left.Body,
+                    Expression.Invoke(right, param)), param);
         }
         
         public static Expression<Func<T, bool>> OrElse<T>(
-            this Expression<Func<T, bool>> expr1,
-            Expression<Func<T, bool>> expr2)
+            this Expression<Func<T, bool>> left,
+            Expression<Func<T, bool>> right)
         {
-            if (expr1 == null)
-                return expr2;
+            if (left == null && right == null)
+                return default;
+
+            if (left == null)
+                return right;
+
+            if (right == null)
+                return left;
             
-            var param = expr1.Parameters[0];
-            if (ReferenceEquals(param, expr2.Parameters[0]))
+            var param = left.Parameters[0];
+            if (ReferenceEquals(param, right.Parameters[0]))
             {
                 return Expression.Lambda<Func<T, bool>>(
-                    Expression.OrElse(expr1.Body, expr2.Body), param);
+                    Expression.OrElse(left.Body, right.Body), param);
             }
             
             return Expression.Lambda<Func<T, bool>>(
                 Expression.OrElse(
-                    expr1.Body,
-                    Expression.Invoke(expr2, param)), param);
+                    left.Body,
+                    Expression.Invoke(right, param)), param);
         }
     }
 }
