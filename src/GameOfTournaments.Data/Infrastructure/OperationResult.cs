@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using Ardalis.GuardClauses;
-    using GameOfTournaments.Shared;
 
     public class OperationResult : OperationResult<object>
     {
@@ -11,21 +10,23 @@
 
     public class OperationResult<T> : IOperationResult<T>
     {
-        public bool Success { get; set; } = true;
+        private readonly List<string> _errors = new();
+        
+        public bool Success { get; private set; } = true;
 
-        public int Code { get; set; }
+        public int Code { get; private set; }
         
         public int AffectedRows { get; set; }
 
         public T Object { get; set; }
 
-        public List<string> Errors { get; set; } = new();
+        public IEnumerable<string> Errors => this._errors;
 
         public IOperationResult<T> AddErrorMessage(string errorMessage)
         {
             Guard.Against.NullOrWhiteSpace(errorMessage, nameof(errorMessage));
             this.Success = false;
-            this.Errors.Add(errorMessage);
+            this._errors.Add(errorMessage);
 
             return this;
         }

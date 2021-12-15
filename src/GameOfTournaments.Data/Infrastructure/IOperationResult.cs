@@ -2,23 +2,22 @@
 {
     using System;
     using System.Collections.Generic;
-    using GameOfTournaments.Shared;
 
     public interface IOperationResult : IOperationResult<object>
     {
     }
 
-    public interface IOperationResult<T>
+    public interface IOperationResult<out T>
     {
-        bool Success { get; set; }
+        bool Success { get; }
         
-        int Code { get; set; }
+        int Code { get; }
         
-        int AffectedRows { get;  set;}
+        int AffectedRows { get; }
         
-        T Object { get; set; }
+        T Object { get; }
         
-        List<string> Errors { get; set; }
+        IEnumerable<string> Errors { get; }
 
         IOperationResult<T> AddErrorMessage(string errorMessage);
         

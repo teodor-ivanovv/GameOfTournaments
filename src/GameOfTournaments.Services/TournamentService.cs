@@ -18,7 +18,6 @@
         private const PermissionScope Scope = PermissionScope.Tournament;
 
         private readonly IAuthenticationService _authenticationService;
-
         private readonly IApplicationUserAccountService _applicationUserAccountService;
 
         public TournamentService(

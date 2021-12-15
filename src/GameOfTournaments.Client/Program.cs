@@ -12,6 +12,7 @@
     {
         public static async Task Main()
         {
+            // TODO: operation result should become a new deserializable object.
             var connection = new HubConnectionBuilder()
                 .WithUrl("http://localhost:5000/TournamentsHub")
                 .WithAutomaticReconnect()
