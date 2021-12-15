@@ -6,12 +6,12 @@
 
     public class ApplicationUserCache : IApplicationUserCache, IDisposable
     {
-        private readonly MemoryCache _memoryCache;
-
         // Set cache options.
-        private static readonly MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
+        private static readonly MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions()
             // Keep in cache for this time, reset time if accessed.
             .SetSlidingExpiration(TimeSpan.FromDays(7));
+
+        private readonly MemoryCache _memoryCache;
 
         public ApplicationUserCache()
         {
@@ -20,15 +20,15 @@
 
         public long Count => this._memoryCache.Count;
 
-        public ApplicationUserCacheModel Get(int id)
-            => this._memoryCache.Get<ApplicationUserCacheModel>(id);
+        public ApplicationUserCacheModel Get(int id) => this._memoryCache.Get<ApplicationUserCacheModel>(id);
 
         public void Cache(ApplicationUserCacheModel applicationUserCacheModel)
         {
             Guard.Against.Null(applicationUserCacheModel, nameof(applicationUserCacheModel));
-            this._memoryCache.Set(applicationUserCacheModel.Id, applicationUserCacheModel, cacheEntryOptions);
+            this._memoryCache.Set(applicationUserCacheModel.Id, applicationUserCacheModel, _cacheEntryOptions);
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             this._memoryCache.Dispose();

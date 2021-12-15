@@ -32,7 +32,7 @@
         {
             if (!this.AuthenticationService.Authenticated)
                 return this.Unauthorized();
-            
+
             var games = await this._gameService.GetAsync(
                 new GetOptions<Game, string, GameViewModel>
                 {
@@ -42,7 +42,7 @@
 
             return this.Ok(games);
         }
-        
+
         [HttpPost]
         public async Task<ActionResult<CreateGameResponseModel>> Create(GameViewModel gameViewModel, CancellationToken cancellationToken)
         {
@@ -57,7 +57,7 @@
 
             return this.FromOperationResult(responseModelOperationResult);
         }
-        
+
         [HttpPut]
         public async Task<ActionResult<UpdateGameResponseModel>> Update(UpdateGameModel updateGameModel, CancellationToken cancellationToken)
         {
@@ -72,7 +72,7 @@
 
             return this.FromOperationResult(responseModelOperationResult);
         }
-        
+
         [HttpDelete]
         public async Task<ActionResult<DeleteGameResponseModel>> Delete(int id, CancellationToken cancellationToken)
         {

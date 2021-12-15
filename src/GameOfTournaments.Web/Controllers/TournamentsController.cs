@@ -16,23 +16,23 @@
     public class TournamentsController : Controller
     {
         private readonly ITournamentService _tournamentService;
-        
+
         public TournamentsController(
-            IHttpContextAccessor httpContextAccessor, 
-            IAuthenticationService AuthenticationService, 
+            IHttpContextAccessor httpContextAccessor,
+            IAuthenticationService authenticationService,
             IApplicationUserCache applicationUserCache,
             ITournamentService tournamentService)
-            : base(httpContextAccessor, AuthenticationService, applicationUserCache)
+            : base(httpContextAccessor, authenticationService, applicationUserCache)
         {
             this._tournamentService = tournamentService ?? throw new ArgumentNullException(nameof(tournamentService));
         }
-        
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TournamentViewModel>>> Get([FromQuery] int page = 1, [FromQuery] int count = 100)
         {
             if (!this.AuthenticationService.Authenticated)
                 return this.Unauthorized();
-            
+
             var tournaments = await this._tournamentService.GetAsync(
                 new GetOptions<Tournament, int, TournamentViewModel>
                 {
@@ -44,7 +44,7 @@
 
             return this.Ok(tournaments);
         }
-        
+
         [HttpPost]
         public async Task<ActionResult<CreateTournamentViewModel>> Create(CreateTournamentViewModel tournamentViewModel, CancellationToken cancellationToken)
         {

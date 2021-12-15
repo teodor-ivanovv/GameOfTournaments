@@ -5,7 +5,9 @@
 
     public static class TaskExtensions
     {
+#pragma warning disable S3168
         public static async void ExecuteNonBlocking(this Task task)
+#pragma warning restore S3168
         {
             try
             {
@@ -20,7 +22,9 @@
             }
         }
         
+#pragma warning disable S3168
         public static async void ExecuteNonBlocking<T>(this Task<T> task)
+#pragma warning restore S3168
         {
             try
             {

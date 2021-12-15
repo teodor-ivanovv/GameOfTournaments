@@ -3,6 +3,7 @@ namespace GameOfTournaments.Web
     using GameOfTournaments.Data.Models;
     using GameOfTournaments.Services;
     using GameOfTournaments.Web.Hubs;
+    using GameOfTournaments.Web.ServiceCollectionExtensions;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Identity;
@@ -10,7 +11,6 @@ namespace GameOfTournaments.Web
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.OpenApi.Models;
-    using ServiceCollectionExtensions;
 
     public class Startup
     {
@@ -24,7 +24,7 @@ namespace GameOfTournaments.Web
         public void ConfigureServices(IServiceCollection services)
         {
             var applicationSettings = services.GetApplicationSettings(this.Configuration);
-            
+
             services.AddControllers();
 
             services.AddIdentity()
@@ -32,14 +32,14 @@ namespace GameOfTournaments.Web
                 .RegisterDbContext(applicationSettings)
                 .AddJwtAuthentication(applicationSettings)
                 .AddApplicationServices();
-                
+
             services.AddSignalR();
-            
+
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "GameOfTournaments.Web", Version = "v1" }); });
         }
 
         public void Configure(
-            IApplicationBuilder app, 
+            IApplicationBuilder app,
             IWebHostEnvironment env,
             ILogger logger,
             UserManager<ApplicationUser> userManager,
@@ -63,7 +63,7 @@ namespace GameOfTournaments.Web
                 endpoints =>
                 {
                     endpoints.MapControllers();
-                    
+
                     endpoints.MapHub<TournamentsHub>("/TournamentsHub");
                 });
         }
