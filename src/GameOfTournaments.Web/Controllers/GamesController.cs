@@ -10,18 +10,20 @@
     using GameOfTournaments.Services.Infrastructure;
     using GameOfTournaments.Web.Cache.ApplicationUsers;
     using GameOfTournaments.Web.Factories;
+    using JetBrains.Annotations;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
 
     public class GamesController : Controller
     {
+        [NotNull]
         private readonly IGameService _gameService;
 
         public GamesController(
-            IHttpContextAccessor httpContextAccessor, 
-            IAuthenticationService authenticationService,
-            IGameService gameService,
-            IApplicationUserCache applicationUserCache)
+            [NotNull] IHttpContextAccessor httpContextAccessor,
+            [NotNull] IAuthenticationService authenticationService,
+            [NotNull] IGameService gameService,
+            [NotNull] IApplicationUserCache applicationUserCache)
             : base(httpContextAccessor, authenticationService, applicationUserCache)
         {
             this._gameService = gameService ?? throw new ArgumentNullException(nameof(gameService));
@@ -44,13 +46,12 @@
         }
 
         [HttpPost]
-        public async Task<ActionResult<CreateGameResponseModel>> Create(GameViewModel gameViewModel, CancellationToken cancellationToken)
+        public async Task<ActionResult<CreateGameViewModel>> Create(
+            [NotNull] GameViewModel gameViewModel,
+            CancellationToken cancellationToken)
         {
             if (!this.AuthenticationService.Authenticated)
                 return this.Unauthorized();
-
-            if (gameViewModel == null)
-                return this.BadRequest(nameof(gameViewModel));
 
             var operationResult = await this._gameService.CreateAsync(gameViewModel.ToGame(), cancellationToken);
             var responseModelOperationResult = operationResult.ChangeObjectType(GameFactory.CreateGameResponseModel(operationResult.Object));
@@ -59,27 +60,34 @@
         }
 
         [HttpPut]
-        public async Task<ActionResult<UpdateGameResponseModel>> Update(UpdateGameModel updateGameModel, CancellationToken cancellationToken)
+        public async Task<ActionResult<UpdateGameViewModel>> Update(
+            [NotNull] UpdateGameInputModel updateGameInputModel,
+            CancellationToken cancellationToken)
         {
             if (!this.AuthenticationService.Authenticated)
                 return this.Unauthorized();
 
-            if (updateGameModel == null)
-                return this.BadRequest(nameof(updateGameModel));
-
-            var operationResult = await this._gameService.UpdateAsync(new object[] { updateGameModel.Id }, updateGameModel.ToGame(), cancellationToken);
+            var operationResult = await this._gameService.UpdateAsync(
+                new object[]
+                {
+                    updateGameInputModel.Id,
+                },
+                updateGameInputModel.ToGame(),
+                cancellationToken);
             var responseModelOperationResult = operationResult.ChangeObjectType(GameFactory.UpdateGameResponseModel(operationResult.Object));
 
             return this.FromOperationResult(responseModelOperationResult);
         }
 
         [HttpDelete]
-        public async Task<ActionResult<DeleteGameResponseModel>> Delete(int id, CancellationToken cancellationToken)
+        public async Task<ActionResult<DeleteGameViewModel>> Delete(int id, CancellationToken cancellationToken)
         {
             if (!this.AuthenticationService.Authenticated)
                 return this.Unauthorized();
 
-            var operationResult = await this._gameService.SoftDeleteAsync(new object[] { id }, cancellationToken);
+            var operationResult = await this._gameService.SoftDeleteAsync(
+                new object[] { id },
+                cancellationToken);
             var responseModelOperationResult = operationResult.ChangeObjectType(GameFactory.DeleteGameResponseModel());
 
             return this.FromOperationResult(responseModelOperationResult);

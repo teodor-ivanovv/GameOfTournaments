@@ -69,7 +69,7 @@
         /// <param name="cancellationToken">The <see cref="CancellationToken" /> used to propagate notifications that the operation should be cancelled.</param>
         /// <returns>A <see cref="Task{TResult}"/> of <see cref="int"/> representing the count of all entities represented in the given database table.</returns>
         Task<int> CountAsync(CancellationToken cancellationToken = default);
-        
+
         Task<int> CountAsync(Expression<Func<TEntity, bool>> filterExpression);
 
         /// <summary>
@@ -82,14 +82,17 @@
         /// <returns>A <see cref="Task{TResult}"/> of <see cref="IOperationResult{T}"/> <see cref="TEntity"/> representing the updated entity.</returns>
         Task<IOperationResult<TEntity>> UpdateAsync(IEnumerable<object> identifiers, TEntity entity, CancellationToken cancellationToken = default);
 
-        IOperationResult<TModel> ValidatePermissions<TModel>(TModel model, PermissionScope scope, Permissions permissions) where TModel : class;
+        IOperationResult<TModel> ValidatePermissions<TModel>(TModel model, PermissionScope scope, Permissions permissions)
+            where TModel : class;
 
-        IOperationResult<TModel> ValidatePermissions<TKey, TModel>(TModel model, PermissionScope scope, Permissions permissions, TKey entityId) where TModel : class;
+        IOperationResult<TModel> ValidatePermissions<TKey, TModel>(TModel model, PermissionScope scope, Permissions permissions, TKey entityId)
+            where TModel : class;
 
-        IOperationResult<TModel> ValidatePermissions<TModel>(TModel model, PermissionScope scope, Permissions permissions, object[] identifiers) where TModel : class;
+        IOperationResult<TModel> ValidatePermissions<TModel>(TModel model, PermissionScope scope, Permissions permissions, object[] identifiers)
+            where TModel : class;
 
         IOperationResult<T> ValidateUserIsAuthenticated<T>();
-        
+
         IOperationResult<T> ValidateUserIsAuthenticated<T>(IOperationResult<T> operationResult);
     }
 }

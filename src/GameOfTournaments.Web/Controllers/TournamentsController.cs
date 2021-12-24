@@ -10,18 +10,20 @@
     using GameOfTournaments.Services.Infrastructure;
     using GameOfTournaments.Web.Cache.ApplicationUsers;
     using GameOfTournaments.Web.Factories;
+    using JetBrains.Annotations;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
 
     public class TournamentsController : Controller
     {
+        [NotNull]
         private readonly ITournamentService _tournamentService;
 
         public TournamentsController(
-            IHttpContextAccessor httpContextAccessor,
-            IAuthenticationService authenticationService,
-            IApplicationUserCache applicationUserCache,
-            ITournamentService tournamentService)
+            [NotNull] IHttpContextAccessor httpContextAccessor,
+            [NotNull] IAuthenticationService authenticationService,
+            [NotNull] IApplicationUserCache applicationUserCache,
+            [NotNull] ITournamentService tournamentService)
             : base(httpContextAccessor, authenticationService, applicationUserCache)
         {
             this._tournamentService = tournamentService ?? throw new ArgumentNullException(nameof(tournamentService));
@@ -46,13 +48,12 @@
         }
 
         [HttpPost]
-        public async Task<ActionResult<CreateTournamentViewModel>> Create(CreateTournamentViewModel tournamentViewModel, CancellationToken cancellationToken)
+        public async Task<ActionResult<CreateTournamentViewModel>> Create(
+            [NotNull] CreateTournamentViewModel tournamentViewModel,
+            CancellationToken cancellationToken)
         {
             if (!this.AuthenticationService.Authenticated)
                 return this.Unauthorized();
-
-            if (tournamentViewModel == null)
-                return this.BadRequest(nameof(tournamentViewModel));
 
             var operationResult = await this._tournamentService.CreateAsync(tournamentViewModel.ToTournament(), cancellationToken);
             var responseModelOperationResult = operationResult.ChangeObjectType(TournamentFactory.CreateTournamentResponseModel(operationResult.Object));

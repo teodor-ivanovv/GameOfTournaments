@@ -13,23 +13,23 @@
             return new GameViewModel { Name = game.Name, Description = game.Description };
         }
 
-        public static CreateGameResponseModel CreateGameResponseModel(Game game)
+        public static CreateGameViewModel CreateGameResponseModel(Game game)
         {
             if (game == default)
                 return default;
             
-            return new CreateGameResponseModel { Name = game.Name, Description = game.Description, CreatedDate = game.Created };
+            return new CreateGameViewModel { Name = game.Name, Description = game.Description, CreatedDate = game.Created };
         }
 
-        public static UpdateGameResponseModel UpdateGameResponseModel(Game game)
+        public static UpdateGameViewModel UpdateGameResponseModel(Game game)
         {
             if (game == default)
                 return default;
             
-            return new UpdateGameResponseModel { Name = game.Name, Description = game.Description, UpdatedDate = game.LastModified };
+            return new UpdateGameViewModel { Name = game.Name, Description = game.Description, UpdatedDate = game.LastModified };
         }
         
-        public static DeleteGameResponseModel DeleteGameResponseModel()
+        public static DeleteGameViewModel DeleteGameResponseModel()
         {
             return default;
         }
