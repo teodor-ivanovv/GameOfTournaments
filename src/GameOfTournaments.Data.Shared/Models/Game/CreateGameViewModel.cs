@@ -3,9 +3,9 @@
     using System;
 
     /// <summary>
-    /// Create game response model.
+    /// Create game view/response model.
     /// </summary>
-    public class CreateGameResponseModel : GameViewModel
+    public class CreateGameViewModel : GameViewModel
     {
         public DateTimeOffset CreatedDate { get; set; }
     }

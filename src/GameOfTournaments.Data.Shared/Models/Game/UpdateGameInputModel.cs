@@ -3,7 +3,10 @@
     using System.ComponentModel.DataAnnotations;
     using GameOfTournaments.Data.Models;
 
-    public class UpdateGameModel : GameViewModel
+    /// <summary>
+    /// Update game input model.
+    /// </summary>
+    public class UpdateGameInputModel : GameViewModel
     {
         [Range(0, int.MaxValue)]
         public int Id { get; set; }

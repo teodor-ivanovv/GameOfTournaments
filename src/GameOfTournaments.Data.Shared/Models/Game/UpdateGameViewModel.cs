@@ -5,7 +5,7 @@
     /// <summary>
     /// Update game response model.
     /// </summary>
-    public class UpdateGameResponseModel : GameViewModel
+    public class UpdateGameViewModel : GameViewModel
     {
         public DateTimeOffset? UpdatedDate { get; set; }
     }
