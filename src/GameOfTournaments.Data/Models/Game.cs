@@ -7,6 +7,7 @@
 
     public class Game : IIdentifiable<int>, IAuditInformation, IDeletable
     {
+        /// <inheritdoc/>
         public int Id { get; set; }
 
         [Required]

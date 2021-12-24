@@ -10,11 +10,11 @@
             : base(options)
         {
         }
-        
+
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
-        
+
         public DbSet<ApplicationUserAccount> ApplicationUsersAccounts { get; set; }
-        
+
         public DbSet<AuditLog> AuditLogs { get; set; }
 
         public DbSet<Log> Logs { get; set; }
@@ -28,14 +28,15 @@
         public DbSet<News> News { get; set; }
 
         public DbSet<Tournament> Tournaments { get; set; }
-        
+
         public DbSet<Permission> Permissions { get; set; }
-        
+
+        /// <inheritdoc/>
         protected override void OnModelCreating(ModelBuilder builder)
         {
             // TODO: Indexes
             // TODO: Move this to configurations
-            
+
             base.OnModelCreating(builder);
             
             builder.Entity<ApplicationUser>()

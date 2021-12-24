@@ -34,4 +34,19 @@
         </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+      <EmbeddedResource Update="Resources\Tournaments.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>Tournaments.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Resources\Tournaments.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Tournaments.resx</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

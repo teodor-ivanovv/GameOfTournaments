@@ -5,7 +5,7 @@
     using static GameOfTournaments.Shared.GameConstants;
 
     /// <summary>
-    /// Create game view model and get game view model.
+    /// Create/get game view model.
     /// </summary>
     public class GameViewModel
     {

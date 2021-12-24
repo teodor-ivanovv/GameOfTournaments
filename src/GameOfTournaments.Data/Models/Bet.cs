@@ -8,9 +8,11 @@
         public int Id { get; set; }
 
         public int TournamentId { get; set; }
+        
         public Tournament Tournament { get; set; }
 
         public int CompetitorId { get; set; }
+        
         public ApplicationUser Competitor { get; set; }
 
         public decimal BetValue { get; set; }
